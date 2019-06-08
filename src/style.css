@@ -1,0 +1,50 @@
+#result {
+	margin: 0;
+	padding: 13px;
+	border: none;
+	background-color: rgb(255, 255, 255);
+	height: 100%;
+	width: 100%;
+}
+
+#src {
+	border:none;
+	background-color: rgb(63, 63, 63);
+	color: #fff;
+	height: 100%;
+	resize: none;
+	-webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+html, body, .row {
+	height: 100%;
+}
+
+.split {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.gutter {
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+	cursor: col-resize;
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+}
+.gutter.gutter-vertical {
+	cursor: row-resize;
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+}
+
+.split.split-horizontal, .gutter.gutter-horizontal {
+	height: 100%;
+	float: left;
+}
