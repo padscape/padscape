@@ -10,6 +10,7 @@ RealtimeCoded will feature:
 - A social-media type of user profiles
 
 # Useful resources
+- [Contributing Guidelines](https://github.com/realtimecoded/realtimeCoded/blob/master/CONTRIBUTING.md)
 - [Issues](https://github.com/realtimecoded/realtimeCoded/issues)
 - [Pull Requests](https://github.com/realtimecoded/realtimeCoded/pulls)
 
