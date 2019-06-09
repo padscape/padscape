@@ -1,7 +1,7 @@
 # realtimeCoded
-###### A new alternative to realtime programming
+###### A new alternative to realtime code editing
 
-RealtimeCoded is a new HTML realtime web editor. It will be available in several platforms in the future, like Android and Desktop, but right now it is on the web.
+RealtimeCoded is a new HTML realtime web editor. It will be available in several platforms in the future, like Android and Desktop, but right now it is available on the web.
 
 RealtimeCoded will feature:
 - Syntax highlighting with numerous themes
