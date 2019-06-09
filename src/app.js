@@ -2,14 +2,17 @@ let defaultText = '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t
 
 var Editor = (function() {
 	return {
-		init: function(input, output, language) {
+		init: function(input, result, output, language) {
 			this.input = input;
+			this.result = result;
 			this.output = output;
 			this.language = language;
 			
+			this.focusInput(this.input);
 			this.addDefaultText(this.input);
 			this.getInput(this.input);
-			this.runCode(this.input, this.output);
+			this.runCode(this.input, this.result);
+			this.renderOutput(this.output, this.input);
 		},
 		
 		getInput: function(input) {
@@ -26,21 +29,42 @@ var Editor = (function() {
 					this.selectionStart =
 					this.selectionEnd = start + 1;
 				}
-				
 			});
-			
 		},
 		
-		runCode: function(input, output) {
+		runCode: function(input, result) {
 			$(document).delegate(input, 'keyup', function(e) {
 				this.code = $(input)[0].value;
-				$(output)[0].srcdoc = this.code;
+				$(result)[0].srcdoc = this.code;
 			});
 			
 			$(document).ready(function() {
 				this.code = $(input)[0].value;
-				$(output)[0].srcdoc = this.code;
+				$(result)[0].srcdoc = this.code;
 			});
+		},
+		
+		renderOutput: function(output, input){
+			$(document).delegate(input, 'keyup', function(e) {
+				value = $(input)[0].value;
+				$('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
+				Prism.highlightAll();
+			});
+			
+			$(document).ready(function() {
+				value = $(input)[0].value;
+				$('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
+				Prism.highlightAll();
+			});
+		},
+		
+		focusInput: function(input){
+			var input = $(input);
+			
+			input.focus();
+			
+			input[0].selectionStart = input[0].value.length;
+			input[0].selectionEnd = input[0].value.length;
 		},
 		
 		addDefaultText: function(input) {
@@ -60,4 +84,4 @@ var splitobj = Split(["#codeCol", "#resultCol"], {
     cursor: 'col-resize'
 });
 
-Editor.init('#src', '#result', 'html');
+Editor.init('#src', '#result', '.code-output', 'html');
