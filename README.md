@@ -9,6 +9,9 @@ RealtimeCoded will feature:
 - A nice, responsive UI
 - A social-media type of user profiles
 
+Current features:
+- Syntax highlighting
+
 # Useful resources
 - [Contributing Guidelines](https://github.com/realtimecoded/realtimeCoded/blob/master/CONTRIBUTING.md)
 - [Issues](https://github.com/realtimecoded/realtimeCoded/issues)
