@@ -9,10 +9,12 @@ var Editor = (function() {
 			this.language = language;
 			
 			this.focusInput(this.input);
+			this.listenLanguage(this.output, this.language);
 			this.addDefaultText(this.input);
 			this.getInput(this.input);
 			this.runCode(this.input, this.result);
 			this.renderOutput(this.output, this.input);
+			this.listenerForScroll(this.input, this.output);
 		},
 		
 		getInput: function(input) {
@@ -34,13 +36,11 @@ var Editor = (function() {
 		
 		runCode: function(input, result) {
 			$(document).delegate(input, 'keyup', function(e) {
-				this.code = $(input)[0].value;
-				$(result)[0].srcdoc = this.code;
+				$(result)[0].srcdoc = $(input)[0].value;
 			});
 			
 			$(document).ready(function() {
-				this.code = $(input)[0].value;
-				$(result)[0].srcdoc = this.code;
+				$(result)[0].srcdoc = $(input)[0].value;
 			});
 		},
 		
@@ -67,6 +67,17 @@ var Editor = (function() {
 			input[0].selectionEnd = input[0].value.length;
 		},
 		
+		listenLanguage: function(output, language) {
+			$(output).removeClass().addClass('code-output language-' + language);
+			$('code', output).removeClass().addClass('language-' + language).removeAttr('data-language');
+		},
+		
+		listenerForScroll: function(input, output) {
+			$(input).on('scroll', function() {
+				$(output)[0].scrollTop = this.scrollTop;
+			});
+		},
+		
 		addDefaultText: function(input) {
 			$(input)[0].value = defaultText;
 		}
@@ -79,7 +90,7 @@ var splitobj = Split(["#codeCol", "#resultCol"], {
     },
     gutterStyle: function (dimension, gutterSize) { return {'flex-basis':  gutterSize + 'px'} },
     sizes: [50, 50],
-    minSize: 250,
+    minSize: 290,
     gutterSize: 6,
     cursor: 'col-resize'
 });
