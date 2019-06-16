@@ -10,7 +10,7 @@ RealtimeCoded will feature:
 - A social-media type of user profiles
 
 Current features:
-- Syntax highlighting
+- Syntax highlighting (1 theme)
 
 # Useful resources
 - [Contributing Guidelines](https://github.com/realtimecoded/realtimeCoded/blob/master/CONTRIBUTING.md)
