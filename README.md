@@ -19,4 +19,4 @@ Current features:
 
 # Using (currently)
 
-Go to `https://realtimecoded.github.io/realtimeCoded/`
+Go to `https://padscape.github.io/padscape/`
