@@ -17,7 +17,7 @@ var Editor = (function() {
         },
         
         getInput: function(input) {
-            $(document).delegate(input, 'keyup keydown', function(e) {
+            $(input).bind('keydown', function(e) {
                 var keyCode = e.keyCode || e.which;
 
                 if (keyCode == 9) {
@@ -46,7 +46,7 @@ var Editor = (function() {
         },
         
         runCode: function(input, result) {
-            $(document).delegate(input, 'keyup keydown', function(e) {
+            $(input).bind('keyup', function(e) {
                 $(result)[0].srcdoc = $(input)[0].value;
             });
             
@@ -56,7 +56,7 @@ var Editor = (function() {
         },
         
         renderOutput: function(output, input){
-            $(document).delegate(input, 'keyup keydown', function(e) {
+            $(input).bind('keyup', function(e) {
                 value = $(input)[0].value;
                 $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
