@@ -1,5 +1,4 @@
 @import url(https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css);
-@import url(https://fonts.googleapis.com/css?family=Inconsolata);
 
 #result {
     margin: 0;
@@ -30,8 +29,8 @@
     hyphens: none;
     outline: 0;
     box-shadow: none;
-    font-family: 'Inconsolata';
-    font-size: 18px;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 1em;
     line-height: 1.5;
     background: #f5f2f0;
     white-space: pre;
@@ -83,13 +82,11 @@ html, body, .row {
 }
 
 code[class*="language-"], pre[class*="language-"] {
-	margin: 0;
     color: black;
     background: transparent;
     text-shadow: none;
-    font-family: 'Inconsolata';
-    font-size: 18px;
-    font-weight: 400;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 1em;
     text-align: left;
     white-space: pre;
     word-wrap: break-word;
