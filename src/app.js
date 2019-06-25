@@ -14,6 +14,7 @@ var Editor = (function() {
             this.runCode(this.input, this.result);
             this.renderOutput(this.output, this.input);
             this.listenerForScroll(this.input, this.output);
+            this.buttons(this.input, this.output);
         },
         
         getInput: function(input) {
@@ -43,11 +44,16 @@ var Editor = (function() {
                     setCaretPosition(this, start + indent.length + 1);
                 }
             });
+
+            $(input).bind('keyup', function() {
+                this.scrollLeft = this.scrollWidth;
+                this.scrollTop = this.scrollHeight;
+            });
         },
         
         runCode: function(input, result) {
             $(input).bind('keyup', function(e) {
-                $(result)[0].srcdoc = $(input)[0].value;
+                $(result)[0].srcdoc = this.value;
             });
             
             $(document).ready(function() {
@@ -56,7 +62,7 @@ var Editor = (function() {
         },
         
         renderOutput: function(output, input){
-            $(input).bind('keyup', function(e) {
+            $(input).bind('keyup', function() {
                 value = $(input)[0].value;
                 $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
@@ -70,8 +76,8 @@ var Editor = (function() {
         },
         
         listenLanguage: function(output, language) {
-            $(output).removeClass().addClass('code-output language-' + language);
-            $('code', output).removeClass().addClass('language-' + language).removeAttr('data-language');
+            $(output).removeClass().addClass(`code-output language-${language}`);
+            $('code', output).removeClass().addClass(`language-${language}`).removeAttr('data-language');
         },
         
         listenerForScroll: function(input, output) {
@@ -83,15 +89,44 @@ var Editor = (function() {
         
         addDefaultText: function(input) {
             $(input)[0].value = defaultText;
+        },
+
+        buttons: function(input, output) {
+            $('.size-btn').click(function() {
+                var current = $(':root').css('--text-size');
+                current = Number(current.substring(0, current.length - 2));
+                $(':root').css('--text-size', `${current + 2}px`);
+            });
+
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutationRecord) {
+                    var position = target.css('flex-basis');
+                    position = position.substring(5, position.length - 1);
+                    $('.size-btn').css('left', `calc(${position} - 55px)`)
+                });    
+            });
+            
+            var target = $('#codeCol');
+            observer.observe(target[0], {
+                attributes: true, attributeFilter: ['style']
+            });
         }
     }
 })();
 
 var splitobj = Split(["#codeCol", "#resultCol"], {
     elementStyle: function (dimension, size, gutterSize) { 
-        return {'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'}
+        return {
+            'flex-basis': `calc(${size}% - ${gutterSize}px)`
+        }
     },
-    gutterStyle: function (dimension, gutterSize) { return {'flex-basis':  gutterSize + 'px'} },
+
+    gutterStyle: function (dimension, gutterSize) {
+        return {
+            'flex-basis': gutterSize + 'px'
+        }
+    },
+
     sizes: [50, 50],
     minSize: 290,
     gutterSize: 6,
