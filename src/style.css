@@ -1,4 +1,9 @@
 @import url(https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css);
+@import url(https://fonts.googleapis.com/css?family=Inconsolata);
+
+:root {
+    --text-size: 19px;
+}
 
 #result {
     margin: 0;
@@ -29,13 +34,30 @@
     hyphens: none;
     outline: 0;
     box-shadow: none;
-    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-    font-size: 1em;
+    font-family: 'Inconsolata', monospace;
+    font-size: var(--text-size);
     line-height: 1.5;
     background: #f5f2f0;
     white-space: pre;
     word-wrap: break-word;
     text-align: left;
+}
+
+.btn-circle {
+    width: 40px;
+    height: 40px;
+    padding: 6px 0px;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.size-btn {
+    z-index: 4;
+    position: fixed;
+    top: 94%;
+    left: 47%;
 }
 
 .code-output {
@@ -85,8 +107,8 @@ code[class*="language-"], pre[class*="language-"] {
     color: black;
     background: transparent;
     text-shadow: none;
-    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-    font-size: 1em;
+    font-family: 'Inconsolata', monospace;
+    font-size: var(--text-size);
     text-align: left;
     white-space: pre;
     word-wrap: break-word;
