@@ -18,7 +18,7 @@ var Editor = (function() {
         },
         
         getInput: function(input) {
-            $(input).bind('keydown', function(e) {
+            $(input).on('keydown', function(e) {
                 var keyCode = e.keyCode || e.which;
 
                 if (keyCode == 9) {
@@ -37,22 +37,17 @@ var Editor = (function() {
                     var indent = line.match(/^\s*/)[0];
 
                     var textBefore = this.value.substring(0, start);
-                    var textAfter  = this.value.substring(start, value.length);
+                    var textAfter  = this.value.substring(start, this.value.length);
 
                     $(this).val(textBefore + "\n" + indent + textAfter);
 
                     setCaretPosition(this, start + indent.length + 1);
                 }
             });
-
-            $(input).bind('keyup', function() {
-                this.scrollLeft = this.scrollWidth;
-                this.scrollTop = this.scrollHeight;
-            });
         },
         
         runCode: function(input, result) {
-            $(input).bind('keyup', function(e) {
+            $(input).on('keyup', function(e) {
                 $(result)[0].srcdoc = this.value;
             });
             
@@ -62,14 +57,22 @@ var Editor = (function() {
         },
         
         renderOutput: function(output, input){
-            $(input).bind('keyup', function() {
-                value = $(input)[0].value;
+            var old_value = "";
+
+            $(input).on('input keydown', function() {
+                var value = this.value;
+
+                if(value == old_value) {
+                    return;
+                }
+                
+                var old_value = value;
                 $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
             });
             
             $(document).ready(function() {
-                value = $(input)[0].value;
+                var value = $(input).val();
                 $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
             });
@@ -92,17 +95,30 @@ var Editor = (function() {
         },
 
         buttons: function(input, output) {
-            $('.size-btn').click(function() {
+            $('.size-plus-btn').click(function() {
                 var current = $(':root').css('--text-size');
                 current = Number(current.substring(0, current.length - 2));
-                $(':root').css('--text-size', `${current + 2}px`);
+
+                if (current < 55) {
+                    $(':root').css('--text-size', `${current + 2}px`);
+                }
+            });
+
+            $('.size-minus-btn').click(function() {
+                var current = $(':root').css('--text-size');
+                current = Number(current.substring(0, current.length - 2));
+
+                if (current > 1) {
+                    $(':root').css('--text-size', `${current - 2}px`);
+                }
             });
 
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutationRecord) {
                     var position = target.css('flex-basis');
                     position = position.substring(5, position.length - 1);
-                    $('.size-btn').css('left', `calc(${position} - 55px)`)
+                    $('.size-plus-btn').css('left', `calc(${position} - 3% + ${splitobj.gutterSize}px)`);
+                    $('.size-minus-btn').css('left', `calc(${position} - 6% + ${splitobj.gutterSize}px)`);
                 });    
             });
             
@@ -123,7 +139,7 @@ var splitobj = Split(["#codeCol", "#resultCol"], {
 
     gutterStyle: function (dimension, gutterSize) {
         return {
-            'flex-basis': gutterSize + 'px'
+            'flex-basis': `${gutterSize}px`
         }
     },
 
