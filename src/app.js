@@ -125,8 +125,8 @@ var Editor = (function() {
                 mutations.forEach(function(mutationRecord) {
                     var position = target.css('flex-basis');
                     position = position.substring(5, position.length - 1);
-                    $('.size-plus-btn').css('left', `calc(${position} - 3% + ${splitobj.gutterSize}px)`);
-                    $('.size-minus-btn').css('left', `calc(${position} - 6% + ${splitobj.gutterSize}px)`);
+                    $('.size-plus-btn').css('left', `calc(${position} - 55px)`);
+                    $('.size-minus-btn').css('left', `calc(${position} - 104px)`);
                 });    
             });
             
