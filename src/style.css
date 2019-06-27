@@ -58,14 +58,14 @@
     z-index: 4;
     position: fixed;
     top: 93%;
-    left: 47%;
+    left: calc(50% - 58px);
 }
 
 .size-minus-btn {
     z-index: 4;
     position: fixed;
     top: 93%;
-    left: 44%;
+    left: calc(50% - 107px);
 }
 
 .code-output {
