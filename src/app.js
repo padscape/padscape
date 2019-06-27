@@ -1,4 +1,7 @@
 let defaultText = '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+if (localStorage.defaultText) {
+    defaultText = localStorage.defaultText;
+}
 
 var Editor = (function() {
     return {
@@ -64,12 +67,14 @@ var Editor = (function() {
         renderOutput: function(output, input){
             $(input).bind('keyup', function() {
                 value = $(input)[0].value;
+                localStorage.defaultText = $(input)[0].value;
                 $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
             });
             
             $(document).ready(function() {
                 value = $(input)[0].value;
+                localStorage.defaultText = $(input)[0].value;
                 $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
             });
