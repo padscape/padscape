@@ -38,7 +38,8 @@
     font-family: 'Inconsolata', monospace;
     font-size: var(--text-size);
     line-height: 1.5;
-    background: #f5f2f0;
+    background: #1e1e1e;
+    caret-color: #d4d4d4;
     white-space: pre;
     word-wrap: break-word;
     text-align: left;
@@ -54,17 +55,19 @@
     line-height: 1.5;
 }
 
-.size-plus-btn {
+.size-plus-btn, .size-minus-btn {
+    border: 1px solid lightgray;
     z-index: 4;
     position: fixed;
-    top: 93%;
+    bottom: 26px;
+    opacity: 0;
+}
+
+.size-plus-btn {
     left: calc(50% - 58px);
 }
 
 .size-minus-btn {
-    z-index: 4;
-    position: fixed;
-    top: 93%;
     left: calc(50% - 107px);
 }
 
@@ -112,7 +115,7 @@ html, body, .row {
 }
 
 code[class*="language-"], pre[class*="language-"] {
-    color: black;
+    color: #d4d4d4;
     background: transparent;
     text-shadow: none;
     font-family: 'Inconsolata', monospace;
@@ -156,34 +159,35 @@ pre[class*="language-"] {
 }
 
 .token.comment, .token.prolog, .token.doctype, .token.cdata {
-    color: slategray;
+    color: #a2a2a2;
 }
 
-.token.punctuation {
-    color: #999;
+.tag.token.punctuation {
+    color: #446580;
 }
 
 .namespace {
     opacity: 0.7;
 }
 
-.token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted {
-    color: #905;
+.token.property, .token.tag, .token.boolean, .token.constant, .token.symbol, .token.deleted {
+    color: #2c7ad6;
 }
+
  .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted {
-    color: #690;
+    color: #9cdcfe;
 }
 
-.token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string {
-    color: #9a6e3a;
+.token.entity, .token.url, .language-css .token.string, .style, .token.string, .token.attr-value {
+    color: #ce9178;
 }
 
-.token.atrule, .token.attr-value, .token.keyword {
-    color: #07a;
+.token.atrule {
+    color: #2c7ad6;
 }
 
 .token.function, .token.class-name {
-    color: #DD4A68;
+    color: #dcdc9d;
 }
 
 .token.regex, .token.important, .token.variable {
@@ -193,6 +197,19 @@ pre[class*="language-"] {
 .token.important, .token.bold {
     font-weight: bold;
 }
+
+.token.number {
+    color: #b5ce9b;
+}
+
+.token.operator {
+    color: #d4d4d4;
+}
+
+.token.keyword {
+    color: #a586b6;
+}
+
 .token.italic {
     font-style: italic;
 }
