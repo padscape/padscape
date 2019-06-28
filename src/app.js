@@ -18,7 +18,7 @@ var Editor = (function() {
             this.runCode(this.input, this.result);
             this.renderOutput(this.output, this.input);
             this.listenerForScroll(this.input, this.output);
-            this.buttons(this.input, this.output);
+            this.buttons();
         },
         
         getInput: function(input) {
@@ -51,7 +51,7 @@ var Editor = (function() {
         },
         
         runCode: function(input, result) {
-            $(input).on('keyup', function(e) {
+            $(input).on('input keydown', function(e) {
                 $(result)[0].srcdoc = this.value;
             });
             
@@ -102,7 +102,7 @@ var Editor = (function() {
             $(input)[0].value = defaultText;
         },
 
-        buttons: function(input, output) {
+        buttons: function() {
             $('.size-plus-btn').click(function() {
                 var current = $(':root').css('--text-size');
                 current = Number(current.substring(0, current.length - 2));
@@ -119,6 +119,18 @@ var Editor = (function() {
                 if (current > 1) {
                     $(':root').css('--text-size', `${current - 2}px`);
                 }
+            });
+
+            $('.size-plus-btn, .size-minus-btn').mouseover(function() {
+                $('.size-plus-btn, .size-minus-btn').animate({opacity: '1'});
+            });
+
+            $('.size-plus-btn, .size-minus-btn').mouseout(function() {
+                $('.size-plus-btn, .size-minus-btn').animate({opacity: '0'});
+            }); 
+
+            $(document).on('scroll', function() {
+                $('.size-plus-btn, .size-minus-btn').css('bottom', `${$(window).scrollTop() + 26}px`);
             });
 
             var observer = new MutationObserver(function(mutations) {
