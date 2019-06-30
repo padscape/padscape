@@ -51,7 +51,7 @@ var Editor = (function() {
         },
         
         runCode: function(input, result) {
-            $(input).on('input keydown', function(e) {
+            $(input).on('keyup', function() {
                 $(result)[0].srcdoc = this.value;
             });
             
@@ -126,7 +126,21 @@ var Editor = (function() {
             });
 
             $('.size-plus-btn, .size-minus-btn').mouseout(function() {
-                $('.size-plus-btn, .size-minus-btn').animate({opacity: '0'});
+                var plusX = $('.size-plus-btn').css('left');
+                plusX = Number(plusX.substring(0, plusX.length - 2));
+
+                var minusX = $('.size-minus-btn').css('left');
+                minusX = Number(minusX.substring(0, minusX.length - 2));
+
+                var buttonsY = $('.size-minus-btn').css('bottom');
+                buttonsY = Number(buttonsY.substring(0, buttonsY.length - 2));
+
+                var mouseX = event.clientX;
+                var mouseY = event.clientY;
+
+                if (mouseX < minusX || mouseX > plusX || mouseY > buttonsY - 20 || mouseY < buttonsY + 20) {
+                    $('.size-plus-btn, .size-minus-btn').animate({opacity: '0'});
+                }
             }); 
 
             $(document).on('scroll', function() {
