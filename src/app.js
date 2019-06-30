@@ -132,13 +132,9 @@ var Editor = (function() {
                 var minusX = $('.size-minus-btn').css('left');
                 minusX = Number(minusX.substring(0, minusX.length - 2));
 
-                var buttonsY = $('.size-minus-btn').css('bottom');
-                buttonsY = Number(buttonsY.substring(0, buttonsY.length - 2));
-
                 var mouseX = event.clientX;
-                var mouseY = event.clientY;
 
-                if (mouseX < minusX || mouseX > plusX || mouseY > buttonsY - 20 || mouseY < buttonsY + 20) {
+                if (mouseX < minusX || mouseX > plusX) {
                     $('.size-plus-btn, .size-minus-btn').animate({opacity: '0'});
                 }
             }); 
