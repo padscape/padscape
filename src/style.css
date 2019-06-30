@@ -38,8 +38,10 @@
     font-family: 'Inconsolata', monospace;
     font-size: var(--text-size);
     line-height: 1.5;
-    background: #1e1e1e;
-    caret-color: #d4d4d4;
+    /*background: #1e1e1e;*/
+    background: ffffff;
+    /*caret-color: #d4d4d4;*/
+    caret-color: #000000;
     white-space: pre;
     word-wrap: break-word;
     text-align: left;
@@ -115,7 +117,8 @@ html, body, .row {
 }
 
 code[class*="language-"], pre[class*="language-"] {
-    color: #d4d4d4;
+    /*color: #d4d4d4;*/
+    color: #000000;
     background: transparent;
     text-shadow: none;
     font-family: 'Inconsolata', monospace;
@@ -159,11 +162,8 @@ pre[class*="language-"] {
 }
 
 .token.comment, .token.prolog, .token.doctype, .token.cdata {
-    color: #a2a2a2;
-}
-
-.tag.token.punctuation {
-    color: #446580;
+    /*color: #a2a2a2;*/
+    color: #4e4e4e;
 }
 
 .namespace {
@@ -171,15 +171,18 @@ pre[class*="language-"] {
 }
 
 .token.property, .token.tag, .token.boolean, .token.constant, .token.symbol, .token.deleted {
-    color: #2c7ad6;
+    /*color: #2c7ad6;*/
+    color: #800000;
 }
 
  .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted {
-    color: #9cdcfe;
+    /*color: #9cdcfe;*/
+    color: #ff8200;
 }
 
 .token.entity, .token.url, .language-css .token.string, .style, .token.string, .token.attr-value {
-    color: #ce9178;
+    /*color: #ce9178;*/
+    color: #0000ff;
 }
 
 .token.atrule {
@@ -187,11 +190,8 @@ pre[class*="language-"] {
 }
 
 .token.function, .token.class-name {
-    color: #dcdc9d;
-}
-
-.token.regex, .token.important, .token.variable {
-    color: #e90;
+    /*color: #dcdc9d;*/
+    color: #000000;
 }
 
 .token.important, .token.bold {
@@ -199,15 +199,22 @@ pre[class*="language-"] {
 }
 
 .token.number {
-    color: #b5ce9b;
+    /*color: #b5ce9b;*/
+    color: #09885a;
 }
 
 .token.operator {
-    color: #d4d4d4;
+    /*color: #d4d4d4;*/
+    color: #000000;
 }
 
 .token.keyword {
-    color: #a586b6;
+    /*color: #a586b6;*/
+    color: #0000ff;
+}
+
+.token.url {
+    text-decoration: underline;
 }
 
 .token.italic {
