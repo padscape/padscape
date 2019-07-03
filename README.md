@@ -10,7 +10,7 @@ Padscape will feature:
 - A social-media type of user profiles
 
 Current features:
-- Syntax highlighting (1 theme)
+- Syntax highlighting (2 themes)
 
 # Useful resources
 - [Contributing Guidelines](https://github.com/padscape/padscape/blob/master/CONTRIBUTING.md)
