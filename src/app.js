@@ -1,12 +1,39 @@
 let defaultText = '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+let theme = 'white';
 
 if (localStorage.defaultText) {
     defaultText = localStorage.defaultText;
 }
 
+if (localStorage.padscapeTheme) {
+    theme = localStorage.padscapeTheme;
+}
+
 var Editor = (function() {
     return {
         init: function(input, result, output, language) {
+            var content = '<div class="row no-gutters"><div class="col" id="codeCol"><textarea id="src" data-gramm_editor="false" spellcheck="false"></textarea><pre class="code-output"><code class="language-html"></code></pre><button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button><button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button></div><div class="col" id="resultCol"><iframe id="result"></iframe></div></div><div class="modal fade" id="settingsModal"><div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">Settings</h4><button type="button" class="close" data-dismiss="modal">&times;</button></div><div class="modal-body"><div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="darkMode"><label class="custom-control-label" for="darkMode">Dark theme</label></div></div><div class="modal-footer"></div></div></div></div>';
+            $("body").append(content);
+
+            var splitobj = Split(["#codeCol", "#resultCol"], {
+                elementStyle: function (dimension, size, gutterSize) { 
+                    return {
+                        'flex-basis': `calc(${size}% - ${gutterSize}px)`
+                    }
+                },
+            
+                gutterStyle: function (dimension, gutterSize) {
+                    return {
+                        'flex-basis': `${gutterSize}px`
+                    }
+                },
+            
+                sizes: [50, 50],
+                minSize: 290,
+                gutterSize: 6,
+                cursor: 'col-resize'
+            });
+
             this.input = input;
             this.result = result;
             this.output = output;
@@ -18,6 +45,7 @@ var Editor = (function() {
             this.runCode(this.input, this.result);
             this.renderOutput(this.output, this.input);
             this.listenerForScroll(this.input, this.output);
+            this.modal();
             this.buttons();
         },
         
@@ -156,28 +184,44 @@ var Editor = (function() {
             observer.observe(target[0], {
                 attributes: true, attributeFilter: ['style']
             });
+        },
+
+        modal: function() {
+            $(document).on("keyup keydown", function(e) {
+                if(e.ctrlKey && e.keyCode == 73) {
+                    e.preventDefault();
+                    $("#settingsModal").modal();
+                }
+            });
+
+            $('#darkMode').click(function() {
+                if ($(this).is(":checked")) {
+                    theme = "dark";
+                    $('#dark')[0].rel = 'stylesheet';
+                    $('#white')[0].rel = 'stylesheet alternate';
+                } else {
+                    theme = "white";
+                    $('#white')[0].rel = 'stylesheet';
+                    $('#dark')[0].rel = 'stylesheet alternate';
+                }
+
+                localStorage.padscapeTheme = theme;
+            });
+
+            $(document).ready(function() {
+                if (localStorage.padscapeTheme == "dark") {
+                    theme = "dark";
+                    $('#dark')[0].rel = 'stylesheet';
+                    $('#white')[0].rel = 'stylesheet alternate';
+                } else {
+                    theme = "white";
+                    $('#white')[0].rel = 'stylesheet';
+                    $('#dark')[0].rel = 'stylesheet alternate';
+                }
+            });
         }
     }
 })();
-
-var splitobj = Split(["#codeCol", "#resultCol"], {
-    elementStyle: function (dimension, size, gutterSize) { 
-        return {
-            'flex-basis': `calc(${size}% - ${gutterSize}px)`
-        }
-    },
-
-    gutterStyle: function (dimension, gutterSize) {
-        return {
-            'flex-basis': `${gutterSize}px`
-        }
-    },
-
-    sizes: [50, 50],
-    minSize: 290,
-    gutterSize: 6,
-    cursor: 'col-resize'
-});
 
 function setCaretPosition(widget, position) {
     if (widget.setSelectionRange) {
