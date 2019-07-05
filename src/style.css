@@ -5,6 +5,12 @@
     --text-size: 19px;
 }
 
+.noGlow, .noGlow:focus {
+    border: none;
+    box-shadow: none;
+    outline: 0;
+}
+
 #result {
     margin: 0;
     padding: 1rem;
@@ -21,7 +27,6 @@
     width: 100%;
     height: 100%;
     padding: 1rem;
-    border: none;
 }
 
 .btn-circle {
@@ -81,11 +86,12 @@ html, body, .row {
 
 .gutter.gutter-horizontal {
     cursor: col-resize;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    background-color: lightgrey;
 }
+
 .gutter.gutter-vertical {
     cursor: row-resize;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+    background-color: lightgrey;
 }
 
 .split.split-horizontal, .gutter.gutter-horizontal {
