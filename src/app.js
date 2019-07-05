@@ -1,18 +1,11 @@
 let defaultText = '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
 let theme = 'white';
-
-if (localStorage.defaultText) {
-    defaultText = localStorage.defaultText;
-}
-
-if (localStorage.padscapeTheme) {
-    theme = localStorage.padscapeTheme;
-}
+let textSize = 18;
 
 var Editor = (function() {
     return {
         init: function(input, result, output, language) {
-            var content = '<div class="row no-gutters"><div class="col" id="codeCol"><textarea id="src" data-gramm_editor="false" spellcheck="false"></textarea><pre class="code-output"><code class="language-html"></code></pre><button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button><button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button></div><div class="col" id="resultCol"><iframe id="result"></iframe></div></div><div class="modal fade" id="settingsModal"><div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">Settings</h4><button type="button" class="close" data-dismiss="modal">&times;</button></div><div class="modal-body"><div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="darkMode"><label class="custom-control-label" for="darkMode">Dark theme</label></div></div><div class="modal-footer"></div></div></div></div>';
+            var content = '<div class="row no-gutters"><div class="col" id="codeCol"><textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea><pre class="code-output"><code class="language-html"></code></pre><button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button><button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button></div><div class="col" id="resultCol"><iframe id="result"></iframe></div></div><div class="modal fade" id="settingsModal"><div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header bg-light text-dark"><h4 class="modal-title">Settings</h4><button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button></div><div class="modal-body"><div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode"><label class="custom-control-label" for="darkMode">Dark theme</label></div></div><div class="modal-footer bg-light"></div></div></div></div>';
             $("body").append(content);
 
             var splitobj = Split(["#codeCol", "#resultCol"], {
@@ -34,19 +27,32 @@ var Editor = (function() {
                 cursor: 'col-resize'
             });
 
+            if (localStorage.defaultText) {
+                defaultText = localStorage.defaultText;
+            }
+            
+            if (localStorage.padscapeTheme) {
+                theme = localStorage.padscapeTheme;
+            }
+
+            if (localStorage.padscapeTextSize) {
+                textSize = localStorage.padscapeTextSize;
+            }
+
             this.input = input;
             this.result = result;
             this.output = output;
             this.language = language;
+
+            $(input)[0].value = defaultText;
             
             this.listenLanguage(this.output, this.language);
-            this.addDefaultText(this.input);
             this.getInput(this.input);
             this.runCode(this.input, this.result);
             this.renderOutput(this.output, this.input);
             this.listenerForScroll(this.input, this.output);
             this.modal();
-            this.buttons();
+            this.sizeButtons();
         },
         
         getInput: function(input) {
@@ -60,7 +66,7 @@ var Editor = (function() {
 
                     $(this).val($(this).val().substring(0, start) + "\t" + $(this).val().substring(end));
 
-                    this.selectionStart =
+                    this.selectionStart = 
                     this.selectionEnd = start + 1;
                 } else if (keyCode == 13) {
                     e.preventDefault();
@@ -73,7 +79,8 @@ var Editor = (function() {
 
                     $(this).val(textBefore + "\n" + indent + textAfter);
 
-                    setCaretPosition(this, start + indent.length + 1);
+                    this.focus();
+                    this.setSelectionRange(position, position);
                 }
             });
         },
@@ -94,7 +101,7 @@ var Editor = (function() {
             $(input).on('input keydown', function() {
                 var value = this.value;
 
-                if(value == old_value) {
+                if (value == old_value) {
                     return;
                 }
                 
@@ -125,12 +132,8 @@ var Editor = (function() {
                 $(output)[0].scrollLeft = this.scrollLeft;
             });
         },
-        
-        addDefaultText: function(input) {
-            $(input)[0].value = defaultText;
-        },
 
-        buttons: function() {
+        sizeButtons: function() {
             $('.size-plus-btn').click(function() {
                 var current = $(':root').css('--text-size');
                 current = Number(current.substring(0, current.length - 2));
@@ -138,6 +141,9 @@ var Editor = (function() {
                 if (current < 55) {
                     $(':root').css('--text-size', `${current + 2}px`);
                 }
+
+                textSize = current;
+                localStorage.padscapeTextSize = textSize;
             });
 
             $('.size-minus-btn').click(function() {
@@ -147,6 +153,13 @@ var Editor = (function() {
                 if (current > 1) {
                     $(':root').css('--text-size', `${current - 2}px`);
                 }
+
+                textSize = current;
+                localStorage.padscapeTextSize = textSize;
+            });
+
+            $(document).ready(function() {
+                $(':root').css('--text-size', `${localStorage.padscapeTextSize}px`);
             });
 
             $('.size-plus-btn, .size-minus-btn').mouseover(function() {
@@ -172,7 +185,7 @@ var Editor = (function() {
             });
 
             var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutationRecord) {
+                mutations.forEach(function() {
                     var position = target.css('flex-basis');
                     position = position.substring(5, position.length - 1);
                     $('.size-plus-btn').css('left', `calc(${position} - 55px)`);
@@ -213,6 +226,7 @@ var Editor = (function() {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
                     $('#white')[0].rel = 'stylesheet alternate';
+                    $( '#darkMode').prop( "checked", true);
                 } else {
                     theme = "white";
                     $('#white')[0].rel = 'stylesheet';
@@ -222,18 +236,5 @@ var Editor = (function() {
         }
     }
 })();
-
-function setCaretPosition(widget, position) {
-    if (widget.setSelectionRange) {
-        widget.focus();
-        widget.setSelectionRange(position, position);
-    } else if (widget.createTextRange) {
-        var range = widget.createTextRange();
-        range.collapse(true);
-        range.moveEnd('character', position);
-        range.moveStart('character', position);
-        range.select();
-    }
-}
 
 Editor.init('#src', '#result', '.code-output', 'html');
