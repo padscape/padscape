@@ -47,6 +47,10 @@
     opacity: 0;
 }
 
+.close {
+    transition: 0.3s;
+}
+
 .size-plus-btn {
     left: calc(50% - 58px);
 }
