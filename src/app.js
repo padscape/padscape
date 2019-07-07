@@ -40,7 +40,7 @@ var Editor = (function() {
             if (localStorage.padscapeTextSize) {
                 textSize = localStorage.padscapeTextSize;
             } else {
-                textSize = 18;
+                textSize = 19;
             }
 
             this.language = 'html';
