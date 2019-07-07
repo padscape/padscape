@@ -1,10 +1,8 @@
-let defaultText = '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
-let theme = 'white';
-let textSize = 18;
+let defaultText, theme, textSize;
 
 var Editor = (function() {
     return {
-        init: function(input, result, output, language) {
+        init: function() {
             var content = '<div class="row no-gutters"><div class="col" id="codeCol"><textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea><pre class="code-output"><code class="language-html"></code></pre><button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button><button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button></div><div class="col" id="resultCol"><iframe id="result"></iframe></div></div><div class="modal fade" id="settingsModal"><div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header bg-light text-dark"><h4 class="modal-title">Settings</h4><button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button></div><div class="modal-body"><div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode"><label class="custom-control-label" for="darkMode">Dark theme</label></div></div><div class="modal-footer bg-light"></div></div></div></div>';
             $("body").append(content);
 
@@ -29,34 +27,37 @@ var Editor = (function() {
 
             if (localStorage.defaultText) {
                 defaultText = localStorage.defaultText;
+            } else {
+                defaultText ='<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
             }
             
             if (localStorage.padscapeTheme) {
                 theme = localStorage.padscapeTheme;
+            } else {
+                theme = 'white';
             }
 
             if (localStorage.padscapeTextSize) {
                 textSize = localStorage.padscapeTextSize;
+            } else {
+                textSize = 18;
             }
 
-            this.input = input;
-            this.result = result;
-            this.output = output;
-            this.language = language;
+            this.language = 'html';
 
-            $(input)[0].value = defaultText;
+            $('#src')[0].value = defaultText;
             
-            this.listenLanguage(this.output, this.language);
-            this.getInput(this.input);
-            this.runCode(this.input, this.result);
-            this.renderOutput(this.output, this.input);
-            this.listenerForScroll(this.input, this.output);
+            this.listenLanguage(this.language);
+            this.getInput();
+            this.runCode();
+            this.renderOutput();
+            this.listenerForScroll();
             this.modal();
             this.sizeButtons();
         },
         
-        getInput: function(input) {
-            $(input).on('keydown', function(e) {
+        getInput: function() {
+            $('#src').on('keydown', function(e) {
                 var keyCode = e.keyCode || e.which;
 
                 if (keyCode == 9) {
@@ -80,25 +81,25 @@ var Editor = (function() {
                     $(this).val(textBefore + "\n" + indent + textAfter);
 
                     this.focus();
-                    this.setSelectionRange(position, position);
+                    this.setSelectionRange(start + indent.length + 1, start + indent.length + 1);
                 }
             });
         },
         
-        runCode: function(input, result) {
-            $(input).on('keyup', function() {
-                $(result)[0].srcdoc = this.value;
+        runCode: function() {
+            $('#src').on('keyup', function() {
+                $('#result')[0].srcdoc = this.value;
             });
             
             $(document).ready(function() {
-                $(result)[0].srcdoc = $(input)[0].value;
+                $('#result')[0].srcdoc = $('#src')[0].value;
             });
         },
         
-        renderOutput: function(output, input){
+        renderOutput: function(){
             var old_value = "";
 
-            $(input).on('input keydown', function() {
+            $('#src').on('input keydown', function() {
                 var value = this.value;
 
                 if (value == old_value) {
@@ -109,27 +110,27 @@ var Editor = (function() {
 
                 localStorage.defaultText = value;
 
-                $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
+                $('code', '.code-output').html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
             });
             
             $(document).ready(function() {
-                var value = $(input).val();
-                localStorage.defaultText = $(input)[0].value;
-                $('code', output).html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
+                var value = $('#src').val();
+                localStorage.defaultText = $('#src')[0].value;
+                $('code', '.code-output').html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
             });
         },
         
-        listenLanguage: function(output, language) {
-            $(output).removeClass().addClass(`code-output language-${language}`);
-            $('code', output).removeClass().addClass(`language-${language}`).removeAttr('data-language');
+        listenLanguage: function(language) {
+            $('.code-output').removeClass().addClass(`code-output language-${language}`);
+            $('code', '.code-output').removeClass().addClass(`language-${language}`).removeAttr('data-language');
         },
         
-        listenerForScroll: function(input, output) {
-            $(input).on('scroll', function() {
-                $(output)[0].scrollTop = this.scrollTop;
-                $(output)[0].scrollLeft = this.scrollLeft;
+        listenerForScroll: function() {
+            $('#src').on('scroll', function() {
+                $('.code-output')[0].scrollTop = this.scrollTop;
+                $('.code-output')[0].scrollLeft = this.scrollLeft;
             });
         },
 
@@ -203,7 +204,8 @@ var Editor = (function() {
             $(document).on("keyup keydown", function(e) {
                 if(e.ctrlKey && e.keyCode == 73) {
                     e.preventDefault();
-                    $("#settingsModal").modal();
+                    $("#settingsModal").modal('toggle');
+                    $('#src').focus();
                 }
             });
 
@@ -237,4 +239,4 @@ var Editor = (function() {
     }
 })();
 
-Editor.init('#src', '#result', '.code-output', 'html');
+Editor.init();
