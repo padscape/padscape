@@ -1,9 +1,44 @@
-let defaultText, theme, textSize;
+let defaultText, theme, textSize, realtime;
 
 var Editor = (function() {
     return {
         init: function() {
-            var content = '<div class="row no-gutters"><div class="col" id="codeCol"><textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea><pre class="code-output"><code class="language-html"></code></pre><button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button><button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button></div><div class="col" id="resultCol"><iframe id="result"></iframe></div></div><div class="modal fade" id="settingsModal"><div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header bg-light text-dark"><h4 class="modal-title">Settings</h4><button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button></div><div class="modal-body"><div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode"><label class="custom-control-label" for="darkMode">Dark theme</label></div></div><div class="modal-footer bg-light"></div></div></div></div>';
+            var content = ` <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+                                <button type="button" class="btn btn-secondary" id="run">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+                            </nav>
+                            <div class="row no-gutters">
+                                <div class="col" id="codeCol">
+                                    <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea>
+                                    <pre class="code-output"><code class="language-html"></code></pre>
+                                    <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
+                                    <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
+                                </div>
+                                <div class="col" id="resultCol">
+                                    <iframe id="result"></iframe></div>
+                                </div>
+                                <div class="modal fade" id="settingsModal">
+                                    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-light text-dark">
+                                                <h4 class="modal-title">Settings</h4>
+                                                <button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode">
+                                                    <label class="custom-control-label" for="darkMode">Dark theme</label>
+                                                </div>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
+                                                    <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer bg-light">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`;
+
             $("body").append(content);
 
             var splitobj = Split(["#codeCol", "#resultCol"], {
@@ -41,6 +76,12 @@ var Editor = (function() {
                 textSize = localStorage.padscapeTextSize;
             } else {
                 textSize = 19;
+            }
+
+            if (localStorage.padscapeRealtime) {
+                realtime = localStorage.padscapeRealtime;
+            } else {
+                realtime = 'on';
             }
 
             this.language = 'html';
@@ -88,7 +129,13 @@ var Editor = (function() {
         
         runCode: function() {
             $('#src').on('keyup', function() {
-                $('#result')[0].srcdoc = this.value;
+                if (realtime == "on") {
+                    $('#result')[0].srcdoc = this.value;
+                }
+            });
+
+            $('#run').click(function() {
+                $('#result')[0].srcdoc = $('#src')[0].value;
             });
             
             $(document).ready(function() {
@@ -228,11 +275,30 @@ var Editor = (function() {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
                     $('#white')[0].rel = 'stylesheet alternate';
-                    $( '#darkMode').prop( "checked", true);
+                    $('#darkMode').prop('checked', true);
                 } else {
                     theme = "white";
                     $('#white')[0].rel = 'stylesheet';
                     $('#dark')[0].rel = 'stylesheet alternate';
+                }
+            });
+
+            $('#realtimeMode').click(function() {
+                if ($(this).is(":checked")) {
+                    realtime = "on";
+                } else {
+                    realtime = "off";
+                }
+
+                localStorage.padscapeRealtime = realtime;
+            });
+
+            $(document).ready(function() {
+                if (localStorage.padscapeRealtime == "on") {
+                    realtime = "on";
+                    $('#realtimeMode').prop('checked', true);
+                } else {
+                    realtime = "off";
                 }
             });
         }
