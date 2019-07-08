@@ -67,6 +67,7 @@
 }
 
 html, body, .row {
+    padding-top: 1rem;
     height: 100%;
 }
 
