@@ -1,4 +1,5 @@
 @import url(https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css);
+@import url(https://use.fontawesome.com/releases/v5.7.0/css/all.css);
 @import url(https://fonts.googleapis.com/css?family=Inconsolata);
 
 :root {
@@ -13,8 +14,6 @@
 
 #result {
     margin: 0;
-    padding: 1rem;
-    padding-bottom: 0;
     border: none;
     height: 100%;
     width: 100%;
