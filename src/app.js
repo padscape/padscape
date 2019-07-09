@@ -3,8 +3,8 @@ let defaultText, theme, textSize, realtime;
 var Editor = (function() {
     return {
         init: function() {
-            var content = ` <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
-                                <button type="button" class="btn btn-secondary" id="run">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+            var content = ` <nav class="navbar navbar-expand-sm fixed-top">
+                                <button type="button" class="btn btn-success noGlow" id="run">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
                             </nav>
                             <div class="row no-gutters">
                                 <div class="col" id="codeCol">
@@ -87,6 +87,7 @@ var Editor = (function() {
             this.language = 'html';
 
             $('#src')[0].value = defaultText;
+            $('src').focus();
             
             this.listenLanguage(this.language);
             this.getInput();
@@ -136,6 +137,12 @@ var Editor = (function() {
 
             $('#run').click(function() {
                 $('#result')[0].srcdoc = $('#src')[0].value;
+            });
+
+            $(document).on("keyup keydown", function(e) {
+                if (e.altKey && e.keyCode == 82) {
+                    $('#result')[0].srcdoc = $('#src')[0].value;
+                }
             });
             
             $(document).ready(function() {
@@ -249,7 +256,7 @@ var Editor = (function() {
 
         modal: function() {
             $(document).on("keyup keydown", function(e) {
-                if(e.ctrlKey && e.keyCode == 73) {
+                if (e.ctrlKey && e.keyCode == 73) {
                     e.preventDefault();
                     $("#settingsModal").modal('toggle');
                     $('#src').focus();
@@ -261,10 +268,12 @@ var Editor = (function() {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
                     $('#white')[0].rel = 'stylesheet alternate';
+                    $('.navbar').addClass('bg-dark navbar-dark');
                 } else {
                     theme = "white";
                     $('#white')[0].rel = 'stylesheet';
                     $('#dark')[0].rel = 'stylesheet alternate';
+                    $('.navbar').addClass('bg-light navbar-light');
                 }
 
                 localStorage.padscapeTheme = theme;
@@ -275,11 +284,13 @@ var Editor = (function() {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
                     $('#white')[0].rel = 'stylesheet alternate';
+                    $('.navbar').addClass('bg-dark navbar-dark');
                     $('#darkMode').prop('checked', true);
                 } else {
                     theme = "white";
                     $('#white')[0].rel = 'stylesheet';
                     $('#dark')[0].rel = 'stylesheet alternate';
+                    $('.navbar').addClass('bg-light navbar-light');
                 }
             });
 
