@@ -4,7 +4,14 @@ var Editor = (function() {
     return {
         init: function() {
             var content = ` <nav class="navbar navbar-expand-sm fixed-top">
-                                <button type="button" class="btn btn-success noGlow" id="run">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+                                <ul class="navbar-nav">
+                                    <li class="nav-item">
+                                        <button type="button" class="btn btn-success noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+                                    </li>
+                                    <li class="nav-item">
+                                        <button type="button" class="btn btn-success noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
+                                    </li>
+                                </ul>
                             </nav>
                             <div class="row no-gutters">
                                 <div class="col" id="codeCol">
@@ -85,6 +92,8 @@ var Editor = (function() {
             }
 
             this.language = 'html';
+
+            $('[data-toggle="tooltip"]').tooltip();
 
             $('#src')[0].value = defaultText;
             $('src').focus();
@@ -227,14 +236,14 @@ var Editor = (function() {
                 $('.size-plus-btn, .size-minus-btn').animate({opacity: '1'});
             });
 
-            $('.size-plus-btn, .size-minus-btn').mouseout(function() {
+            $('.size-plus-btn, .size-minus-btn').mouseleave(function(e) {
                 var plusX = $('.size-plus-btn').css('left');
                 plusX = Number(plusX.substring(0, plusX.length - 2));
 
                 var minusX = $('.size-minus-btn').css('left');
                 minusX = Number(minusX.substring(0, minusX.length - 2));
 
-                var mouseX = event.clientX;
+                var mouseX = e.pageX;
 
                 if (mouseX < minusX || mouseX > plusX) {
                     $('.size-plus-btn, .size-minus-btn').animate({opacity: '0'});
@@ -267,6 +276,11 @@ var Editor = (function() {
                     $("#settingsModal").modal('toggle');
                     $('#src').focus();
                 }
+            });
+
+            $('#settings').click(function() {
+                $("#settingsModal").modal('toggle');
+                $('#src').focus();
             });
 
             $('#darkMode').click(function() {
