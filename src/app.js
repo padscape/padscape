@@ -139,6 +139,12 @@ var Editor = (function() {
                 $('#result')[0].srcdoc = $('#src')[0].value;
             });
 
+            $('#realtimeMode').click(function() {
+                if ($(this).is(":checked")) {
+                    $('#result')[0].srcdoc = $('#src')[0].value;
+                }
+            });
+
             $(document).on("keyup keydown", function(e) {
                 if (e.altKey && e.keyCode == 82) {
                     $('#result')[0].srcdoc = $('#src')[0].value;
