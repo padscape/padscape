@@ -79,7 +79,7 @@ var Editor = (function() {
                 theme = 'white';
             }
 
-            if (localStorage.padscapeTextSize) {
+            if (localStorage.padscapeTextSize != 'NaN') {
                 textSize = localStorage.padscapeTextSize;
             } else {
                 textSize = 19;
@@ -229,7 +229,7 @@ var Editor = (function() {
             });
 
             $(document).ready(function() {
-                $(':root').css('--text-size', `${localStorage.padscapeTextSize}px`);
+                $(':root').css('--text-size', `${textSize}px`);
             });
 
             $('.size-plus-btn, .size-minus-btn').mouseover(function() {
