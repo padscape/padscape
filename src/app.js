@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime;
+let defaultText, theme, textSize, realtime, indentSize;
 
 var Editor = (function() {
     return {
@@ -38,6 +38,18 @@ var Editor = (function() {
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
                                                     <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <select name="indent" class="custom-select" id="indentSize">
+                                                            <option val="2spc">2 spaces</option>
+                                                            <option val="4spc" selected>4 spaces</option>
+                                                            <option val="8spc">8 spaces</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="usr">Indent Size</label>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer bg-light">
@@ -83,6 +95,12 @@ var Editor = (function() {
                 textSize = localStorage.padscapeTextSize;
             } else {
                 textSize = 19;
+            }
+
+            if (localStorage.padscapeIndentSize != 'NaN') {
+                indentSize = localStorage.padscapeIndentSize;
+            } else {
+                indentSize = 4;
             }
 
             if (localStorage.padscapeRealtime) {
@@ -299,7 +317,37 @@ var Editor = (function() {
                 localStorage.padscapeTheme = theme;
             });
 
+            $('#realtimeMode').click(function() {
+                if ($(this).is(":checked")) {
+                    realtime = "on";
+                } else {
+                    realtime = "off";
+                }
+
+                localStorage.padscapeRealtime = realtime;
+            });
+
+            $('#indentSize').on('change', function() {
+                $('#src').blur();
+
+                indentSize = this.value;
+                indentSize = Number(indentSize.substring(0, indentSize.length - 7));
+
+                $(':root').css('--indent-size', indentSize);
+
+                localStorage.padscapeIndentSize = indentSize;
+
+                $('#src').focus();
+            });
+
             $(document).ready(function() {
+                if (localStorage.padscapeRealtime == "on") {
+                    realtime = "on";
+                    $('#realtimeMode').prop('checked', true);
+                } else {
+                    realtime = "off";
+                }
+
                 if (localStorage.padscapeTheme == "dark") {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
@@ -311,25 +359,6 @@ var Editor = (function() {
                     $('#white')[0].rel = 'stylesheet';
                     $('#dark')[0].rel = 'stylesheet alternate';
                     $('.navbar').addClass('bg-light navbar-light');
-                }
-            });
-
-            $('#realtimeMode').click(function() {
-                if ($(this).is(":checked")) {
-                    realtime = "on";
-                } else {
-                    realtime = "off";
-                }
-
-                localStorage.padscapeRealtime = realtime;
-            });
-
-            $(document).ready(function() {
-                if (localStorage.padscapeRealtime == "on") {
-                    realtime = "on";
-                    $('#realtimeMode').prop('checked', true);
-                } else {
-                    realtime = "off";
                 }
             });
         }
