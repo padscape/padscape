@@ -15,7 +15,7 @@ var Editor = (function() {
                             </nav>
                             <div class="row no-gutters">
                                 <div class="col" id="codeCol">
-                                    <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" style="display: none'></textarea>
+                                    <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea>
                                     <pre class="code-output"><code class="language-html"></code></pre>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
