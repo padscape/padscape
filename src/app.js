@@ -1,15 +1,15 @@
-let defaultText, theme, textSize, realtime, indentSize;
+let defaultText, theme, textSize, realtime, indentSize, layout;
 
-var Editor = (function() {
+var Editor = (() => {
     return {
         init: function() {
             var content = ` <nav class="navbar navbar-expand-sm fixed-top">
                                 <ul class="navbar-nav">
                                     <li class="nav-item">
-                                        <button type="button" class="btn btn-success noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+                                        <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
                                     </li>
                                     <li class="nav-item">
-                                        <button type="button" class="btn btn-success noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
+                                        <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
                                     </li>
                                 </ul>
                             </nav>
@@ -23,37 +23,46 @@ var Editor = (function() {
                                 <div class="col" id="resultCol">
                                     <iframe id="result"></iframe></div>
                                 </div>
-                                <div class="modal fade" id="settingsModal">
-                                    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-light text-dark">
-                                                <h4 class="modal-title">Settings</h4>
-                                                <button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal fade" id="settingsModal">
+                                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-light text-dark">
+                                            <h4 class="modal-title">Settings</h4>
+                                            <button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode">
+                                                <label class="custom-control-label" for="darkMode">Dark theme</label>
                                             </div>
-                                            <div class="modal-body">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode">
-                                                    <label class="custom-control-label" for="darkMode">Dark theme</label>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
+                                                <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
+                                            </div>
+                                            <div class="row vertical-align">
+                                                <div class="col">
+                                                    <select name="indent" class="custom-select" id="indentSize">
+                                                        <option val="2spc">2 spaces</option>
+                                                        <option val="4spc">4 spaces</option>
+                                                        <option val="8spc">8 spaces</option>
+                                                    </select>
                                                 </div>
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
-                                                    <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <select name="indent" class="custom-select" id="indentSize">
-                                                            <option val="2spc">2 spaces</option>
-                                                            <option val="4spc" selected>4 spaces</option>
-                                                            <option val="8spc">8 spaces</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="usr">Indent Size</label>
-                                                    </div>
+                                                <div class="col">
+                                                    <label for="indentSize">Indent Size</label>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer bg-light">
+                                            <div class="row vertical-align">
+                                                <div class="col">
+                                                    <button type="button" class="btn btn-primary noGlow" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns"></i></button>
+                                                    <button type="button" class="btn btn-primary noGlow" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns fa-rotate-270"></i></button>
+                                                </div>
+                                                <div class="col">
+                                                    <label for="horizontal-split">Layout</label>
+                                                </div>
                                             </div>
+                                        </div>
+                                        <div class="modal-footer bg-light"></div>
                                         </div>
                                     </div>
                                 </div>`;
@@ -61,13 +70,13 @@ var Editor = (function() {
             $("body").append(content);
 
             var splitobj = Split(["#codeCol", "#resultCol"], {
-                elementStyle: function (dimension, size, gutterSize) { 
+                elementStyle: (dimension, size, gutterSize) => { 
                     return {
                         'flex-basis': `calc(${size}% - ${gutterSize}px)`
                     }
                 },
             
-                gutterStyle: function (dimension, gutterSize) {
+                gutterStyle: (dimension, gutterSize) => {
                     return {
                         'flex-basis': `${gutterSize}px`
                     }
@@ -109,6 +118,12 @@ var Editor = (function() {
                 realtime = 'on';
             }
 
+            if (localStorage.layout) {
+                layout = localStorage.layout;
+            } else {
+                layout = 'vertical';
+            }
+
             this.language = 'html';
 
             $('[data-toggle="tooltip"]').tooltip();
@@ -125,7 +140,7 @@ var Editor = (function() {
             this.sizeButtons();
         },
         
-        getInput: function() {
+        getInput: () => {
             $('#src').on('keydown', function(e) {
                 var keyCode = e.keyCode || e.which;
 
@@ -155,7 +170,7 @@ var Editor = (function() {
             });
         },
         
-        runCode: function() {
+        runCode: () => {
             $('#src').on('keyup', function() {
                 if (realtime == "on") {
                     $('#result')[0].srcdoc = this.value;
@@ -183,7 +198,7 @@ var Editor = (function() {
             });
         },
         
-        renderOutput: function(){
+        renderOutput: () => {
             var old_value = "";
 
             $('#src').on('input keydown', function() {
@@ -209,19 +224,19 @@ var Editor = (function() {
             });
         },
         
-        listenLanguage: function(language) {
+        listenLanguage: language => {
             $('.code-output').removeClass().addClass(`code-output language-${language}`);
             $('code', '.code-output').removeClass().addClass(`language-${language}`).removeAttr('data-language');
         },
         
-        listenerForScroll: function() {
+        listenerForScroll: () => {
             $('#src').on('scroll', function() {
                 $('.code-output')[0].scrollTop = this.scrollTop;
                 $('.code-output')[0].scrollLeft = this.scrollLeft;
             });
         },
 
-        sizeButtons: function() {
+        sizeButtons: () => {
             $('.size-plus-btn').click(function() {
                 var current = $(':root').css('--text-size');
                 current = Number(current.substring(0, current.length - 2));
@@ -287,7 +302,7 @@ var Editor = (function() {
             });
         },
 
-        modal: function() {
+        modal: () => {
             $(document).on("keyup keydown", function(e) {
                 if (e.ctrlKey && e.keyCode == 73) {
                     e.preventDefault();
@@ -360,6 +375,21 @@ var Editor = (function() {
                     $('#dark')[0].rel = 'stylesheet alternate';
                     $('.navbar').addClass('bg-light navbar-light');
                 }
+
+                $(':root').css('--indent-size', indentSize);
+                $('#indentSize').val(`${indentSize} spaces`);
+            });
+
+            $('#vertical-split').click(function() {
+                if (layout != "vertical") {
+                    layout = "vertical";
+
+                    
+                }
+            });
+
+            $('#horizontal-split').click(function() {
+                
             });
         }
     }
