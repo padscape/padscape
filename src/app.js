@@ -14,13 +14,13 @@ var Editor = (() => {
                                 </ul>
                             </nav>
                             <div class="row no-gutters">
-                                <div class="col" id="codeCol">
+                                <div id="codeCol">
                                     <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea>
                                     <pre class="code-output"><code class="language-html"></code></pre>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
                                 </div>
-                                <div class="col" id="resultCol">
+                                <div id="resultCol">
                                     <iframe id="result"></iframe></div>
                                 </div>
                             </div>
@@ -71,6 +71,8 @@ var Editor = (() => {
 
             var splitobj = Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
+                    $('#src, .code-output').css('width', $("#codeCol").css('flex-basis'));
+
                     return {
                         'flex-basis': `calc(${size}% - ${gutterSize}px)`
                     }
@@ -87,6 +89,28 @@ var Editor = (() => {
                 gutterSize: 6,
                 cursor: 'col-resize'
             });
+
+            /*var splitobj = Split(["#codeCol", "#resultCol"], {
+                elementStyle: (dimension, size, gutterSize) => { 
+                    $('#src, .code-output').css('height', $("#codeCol").css('height'));
+
+                    return {
+                        'height': `calc(${size}% - ${gutterSize}px)`
+                    }
+                },
+            
+                gutterStyle: (dimension, gutterSize) => {
+                    return {
+                        'height': `${gutterSize}px`
+                    }
+                },
+            
+                sizes: [50, 50],
+                direction: 'vertical',
+                minSize: 290,
+                gutterSize: 6,
+                cursor: 'row-resize'
+            });*/
 
             if (localStorage.defaultText) {
                 defaultText = localStorage.defaultText;
@@ -209,7 +233,6 @@ var Editor = (() => {
                 }
                 
                 var old_value = value;
-
                 localStorage.defaultText = value;
 
                 $('code', '.code-output').html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
@@ -238,8 +261,7 @@ var Editor = (() => {
 
         sizeButtons: () => {
             $('.size-plus-btn').click(function() {
-                var current = $(':root').css('--text-size');
-                current = Number(current.substring(0, current.length - 2));
+                var current = Number($(':root').css('--text-size').slice(0, -2));
 
                 if (current < 55) {
                     $(':root').css('--text-size', `${current + 2}px`);
@@ -250,8 +272,7 @@ var Editor = (() => {
             });
 
             $('.size-minus-btn').click(function() {
-                var current = $(':root').css('--text-size');
-                current = Number(current.substring(0, current.length - 2));
+                var current = Number($(':root').css('--text-size').slice(0, -2));
 
                 if (current > 1) {
                     $(':root').css('--text-size', `${current - 2}px`);
@@ -270,11 +291,8 @@ var Editor = (() => {
             });
 
             $('.size-plus-btn, .size-minus-btn').mouseleave(function(e) {
-                var plusX = $('.size-plus-btn').css('left');
-                plusX = Number(plusX.substring(0, plusX.length - 2));
-
-                var minusX = $('.size-minus-btn').css('left');
-                minusX = Number(minusX.substring(0, minusX.length - 2));
+                var plusX = Number($('.size-plus-btn').css('left').slice(0, -2));
+                var minusX = Number($('.size-minus-btn').css('left').slice(0, -2));
 
                 var mouseX = e.pageX;
 
@@ -289,8 +307,7 @@ var Editor = (() => {
 
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function() {
-                    var position = target.css('flex-basis');
-                    position = position.substring(5, position.length - 1);
+                    var position = target.css('flex-basis').slice(5, -1);
                     $('.size-plus-btn').css('left', `calc(${position} - 55px)`);
                     $('.size-minus-btn').css('left', `calc(${position} - 104px)`);
                 });    
@@ -345,8 +362,7 @@ var Editor = (() => {
             $('#indentSize').on('change', function() {
                 $('#src').blur();
 
-                indentSize = this.value;
-                indentSize = Number(indentSize.substring(0, indentSize.length - 7));
+                var indentSize = Number(this.value.slice(0, -7));
 
                 $(':root').css('--indent-size', indentSize);
 
@@ -384,14 +400,18 @@ var Editor = (() => {
                 if (layout != "vertical") {
                     layout = "vertical";
 
-                    
+                    console.log('v');
                 }
             });
 
             $('#horizontal-split').click(function() {
-                
+                if (layout != "horizontal") {
+                    layout = "horizontal";
+
+                    
+                }
             });
-        }
+        },
     }
 })();
 
