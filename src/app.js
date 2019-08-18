@@ -3,7 +3,7 @@ let defaultText, theme, textSize, realtime, indentSize, layout;
 var Editor = (() => {
     return {
         init: function() {
-            var content = ` <nav class="navbar navbar-expand-sm fixed-top">
+            var content = `<nav class="navbar navbar-expand-sm fixed-top">
                                 <ul class="navbar-nav">
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
@@ -13,14 +13,14 @@ var Editor = (() => {
                                     </li>
                                 </ul>
                             </nav>
-                            <div class="row no-gutters">
-                                <div id="codeCol">
+                            <div class="row">
+                                <div id="codeCol" class="col">
                                     <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea>
                                     <pre class="code-output"><code class="language-html"></code></pre>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
                                 </div>
-                                <div id="resultCol">
+                                <div id="resultCol" class="col">
                                     <iframe id="result"></iframe></div>
                                 </div>
                             </div>
@@ -71,8 +71,6 @@ var Editor = (() => {
 
             var splitobj = Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
-                    $('#src, .code-output').css('width', $("#codeCol").css('flex-basis'));
-
                     return {
                         'flex-basis': `calc(${size}% - ${gutterSize}px)`
                     }
@@ -89,28 +87,6 @@ var Editor = (() => {
                 gutterSize: 6,
                 cursor: 'col-resize'
             });
-
-            /*var splitobj = Split(["#codeCol", "#resultCol"], {
-                elementStyle: (dimension, size, gutterSize) => { 
-                    $('#src, .code-output').css('height', $("#codeCol").css('height'));
-
-                    return {
-                        'height': `calc(${size}% - ${gutterSize}px)`
-                    }
-                },
-            
-                gutterStyle: (dimension, gutterSize) => {
-                    return {
-                        'height': `${gutterSize}px`
-                    }
-                },
-            
-                sizes: [50, 50],
-                direction: 'vertical',
-                minSize: 290,
-                gutterSize: 6,
-                cursor: 'row-resize'
-            });*/
 
             if (localStorage.defaultText) {
                 defaultText = localStorage.defaultText;
