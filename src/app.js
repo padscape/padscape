@@ -1,9 +1,9 @@
 let defaultText, theme, textSize, realtime, indentSize, layout;
 
-var Editor = (() => {
+let Editor = (() => {
     return {
         init: function() {
-            var content = `<nav class="navbar navbar-expand-sm fixed-top">
+            var content = ` <nav class="navbar navbar-expand-sm fixed-top">
                                 <ul class="navbar-nav">
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
@@ -88,10 +88,14 @@ var Editor = (() => {
                 cursor: 'col-resize'
             });
 
-            if (localStorage.defaultText) {
-                defaultText = localStorage.defaultText;
+            if (location.hash) {
+                this.getCode(location.hash.substring(1));
             } else {
-                defaultText ='<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+                if (localStorage.defaultText) {
+                    defaultText = localStorage.defaultText;
+                } else {
+                    defaultText ='<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+                }
             }
             
             if (localStorage.padscapeTheme) {
@@ -138,6 +142,18 @@ var Editor = (() => {
             this.listenerForScroll();
             this.modal();
             this.sizeButtons();
+        },
+
+        getCode: id => {
+            const getData = async id => {
+                let response = await fetch(`http://100.66.121.164:5520/code/${id}`);
+                return await response.json();
+            }
+
+            (async () => {
+                let data = await getData(id);
+                defaultText = JSON.parse(data.slice(1, -1)).Code;
+            })()
         },
         
         getInput: () => {
