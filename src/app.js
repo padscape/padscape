@@ -88,8 +88,17 @@ let Editor = (() => {
                 cursor: 'col-resize'
             });
 
+            const getData = async id => {
+                let response = await fetch(`http://100.66.121.164:5520/code/${id}`);
+                return await response.json();
+            }
+
             if (location.hash) {
-                this.getCode(location.hash.substring(1));
+                (async () => {
+                    let data = await getData(location.hash.substring(1));
+                    console.log(JSON.parse(data.slice(1, -1)).Code);
+                    defaultText = JSON.parse(data.slice(1, -1)).Code;
+                })()
             } else {
                 if (localStorage.defaultText) {
                     defaultText = localStorage.defaultText;
@@ -114,6 +123,7 @@ let Editor = (() => {
                 indentSize = localStorage.padscapeIndentSize;
             } else {
                 indentSize = 4;
+                $('#indentSize').val(`${indentSize} spaces`);
             }
 
             if (localStorage.padscapeRealtime) {
@@ -142,18 +152,6 @@ let Editor = (() => {
             this.listenerForScroll();
             this.modal();
             this.sizeButtons();
-        },
-
-        getCode: id => {
-            const getData = async id => {
-                let response = await fetch(`http://100.66.121.164:5520/code/${id}`);
-                return await response.json();
-            }
-
-            (async () => {
-                let data = await getData(id);
-                defaultText = JSON.parse(data.slice(1, -1)).Code;
-            })()
         },
         
         getInput: () => {
@@ -225,7 +223,14 @@ let Editor = (() => {
                 }
                 
                 var old_value = value;
-                localStorage.defaultText = value;
+                if (location.hash) {
+                    const http = new XMLHttpRequest();
+
+                    http.open("PUT", `http://100.66.121.164:5520/code/${location.hash.substring(1)}`, true);
+                    http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": value}));
+                } else {
+                    localStorage.defaultText = value;
+                }
 
                 $('code', '.code-output').html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
@@ -233,7 +238,6 @@ let Editor = (() => {
             
             $(document).ready(function() {
                 var value = $('#src').val();
-                localStorage.defaultText = $('#src')[0].value;
                 $('code', '.code-output').html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
                 Prism.highlightAll();
             });
