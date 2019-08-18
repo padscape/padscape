@@ -23,6 +23,7 @@
     border: none;
     height: 100%;
     width: 100%;
+    padding-top: 0.2rem;
 }
 
 #src, .code-output {
