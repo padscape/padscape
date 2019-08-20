@@ -75,13 +75,7 @@ let Editor = (() => {
                         'flex-basis': `calc(${size}% - ${gutterSize}px)`
                     }
                 },
-            
-                gutterStyle: (dimension, gutterSize) => {
-                    return {
-                        'flex-basis': `${gutterSize}px`
-                    }
-                },
-            
+
                 sizes: [50, 50],
                 minSize: 290,
                 gutterSize: 6,
@@ -107,12 +101,7 @@ let Editor = (() => {
                     $('code.language-html')[0].innerHTML = defaultText;
                 })()
             } else {
-                if (localStorage.defaultText) {
-                    defaultText = localStorage.defaultText;
-                } else {
-                    defaultText ='<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
-                }
-
+                defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
                 $('#src')[0].value = defaultText;
             }
 
@@ -372,7 +361,7 @@ let Editor = (() => {
                 if (layout != "vertical") {
                     layout = "vertical";
 
-                    console.log('v');
+                    console.log('Switch to vertical split');
                 }
             });
 
@@ -380,7 +369,7 @@ let Editor = (() => {
                 if (layout != "horizontal") {
                     layout = "horizontal";
 
-                    
+                    console.log('Switch to horizontal split');
                 }
             });
         },
