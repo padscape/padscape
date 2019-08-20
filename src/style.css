@@ -7,6 +7,15 @@
     --indent-size: 4;
 }
 
+html, body {
+    overflow: hidden;
+}
+
+html, body, .row {
+    padding-top: 1rem;
+    height: 100%;
+}
+
 .noGlow, .noGlow:focus {
     border: none;
     box-shadow: none;
@@ -23,7 +32,7 @@
     border: none;
     height: 100%;
     width: 100%;
-    padding-top: 0.2rem;
+    padding-top: 1rem;
 }
 
 #src, .code-output {
@@ -32,7 +41,12 @@
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 1rem;
+    padding: 1.5rem;
+    padding-left: 2rem;
+}
+
+#resultCol {
+    padding-right: 0;
 }
 
 .nav-item {
@@ -74,11 +88,6 @@
     z-index: 3;
     overflow-y: auto;
     background: transparent;
-}
-
-html, body, .row {
-    padding-top: 1rem;
-    height: 100%;
 }
 
 .codeCol {
