@@ -88,16 +88,23 @@ let Editor = (() => {
                 cursor: 'col-resize'
             });
 
-            const getData = async id => {
-                let response = await fetch(`http://100.66.121.164:5520/code/${id}`);
-                return await response.json();
-            }
+            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
+            textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
+            realtime = (localStorage.padscapeRealtime) ? localStorage.padscapeRealtime : 'on';
+            layout = (localStorage.layout) ? localStorage.layout : 'vertical';
+            indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
 
             if (location.hash) {
+                const getData = async id => {
+                    let response = await fetch(`http://100.66.121.164:5520/code/${id}`);
+                    return await response.json();
+                }
+
                 (async () => {
                     let data = await getData(location.hash.substring(1));
-                    console.log(JSON.parse(data.slice(1, -1)).Code);
-                    defaultText = JSON.parse(data.slice(1, -1)).Code;
+                    $('#src')[0].value = JSON.parse(data.slice(1, -1)).Code;
+                    defaultText = $('#src')[0].value;
+                    $('code.language-html')[0].innerHTML = defaultText;
                 })()
             } else {
                 if (localStorage.defaultText) {
@@ -105,46 +112,15 @@ let Editor = (() => {
                 } else {
                     defaultText ='<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
                 }
-            }
-            
-            if (localStorage.padscapeTheme) {
-                theme = localStorage.padscapeTheme;
-            } else {
-                theme = 'white';
+
+                $('#src')[0].value = defaultText;
             }
 
-            if (localStorage.padscapeTextSize != 'NaN') {
-                textSize = localStorage.padscapeTextSize;
-            } else {
-                textSize = 19;
-            }
-
-            if (localStorage.padscapeIndentSize != 'NaN') {
-                indentSize = localStorage.padscapeIndentSize;
-            } else {
-                indentSize = 4;
-                $('#indentSize').val(`${indentSize} spaces`);
-            }
-
-            if (localStorage.padscapeRealtime) {
-                realtime = localStorage.padscapeRealtime;
-            } else {
-                realtime = 'on';
-            }
-
-            if (localStorage.layout) {
-                layout = localStorage.layout;
-            } else {
-                layout = 'vertical';
-            }
-
-            this.language = 'html';
-
+            $('src').focus();
+            $('#indentSize').val(`${indentSize} spaces`);
             $('[data-toggle="tooltip"]').tooltip();
 
-            $('#src')[0].value = defaultText;
-            $('src').focus();
-            
+            this.language = 'html';
             this.listenLanguage(this.language);
             this.getInput();
             this.runCode();
