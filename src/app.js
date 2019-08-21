@@ -99,7 +99,7 @@ let Editor = (() => {
                     $('#src')[0].value = JSON.parse(data.slice(1, -1)).Code;
                     defaultText = $('#src')[0].value;
                     $('code.language-html')[0].innerHTML = defaultText;
-                })()
+                })();
             } else {
                 defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
                 $('#src')[0].value = defaultText;
@@ -123,16 +123,29 @@ let Editor = (() => {
             $('#src').on('keydown', function(e) {
                 var keyCode = e.keyCode || e.which;
 
-                if (keyCode == 9) {
+                if (keyCode === 9) {
                     e.preventDefault();
                     var start = this.selectionStart;
                     var end = this.selectionEnd;
 
-                    $(this).val($(this).val().substring(0, start) + "\t" + $(this).val().substring(end));
+                    if (start !== end) {
+                        let text = '';
+                        let lines = this.value.substring(start, end).split('\n');
+
+                        for (let i = 0; i < lines.length; i++) {
+                            line = `\t${lines[i]}`;
+                            text += line;
+                            if (i < lines.length - 1) text += '\n';
+                        }
+
+                        $(this).val(`${this.value.substring(0, start)}${text}${this.value.substring(end)}`);
+                    } else {
+                        $(this).val(`${$(this).val().substring(0, start)}\t${$(this).val().substring(end)}`);
+                    }
 
                     this.selectionStart = 
                     this.selectionEnd = start + 1;
-                } else if (keyCode == 13) {
+                } else if (keyCode === 13) {
                     e.preventDefault();
                     var start = this.selectionStart;
                     var line = this.value.substring(0, this.selectionStart).split("\n").pop();
@@ -183,9 +196,7 @@ let Editor = (() => {
             $('#src').on('input keydown', function() {
                 var value = this.value;
 
-                if (value == old_value) {
-                    return;
-                }
+                if (value == old_value) return;
                 
                 var old_value = value;
                 if (location.hash) {
