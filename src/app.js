@@ -1,9 +1,11 @@
-let defaultText, theme, textSize, realtime, indentSize, layout;
+let defaultText, theme, textSize, realtime, indentSize, layout, editor;
 
 let Editor = (() => {
     return {
         init: function() {
-            var content = ` <nav class="navbar navbar-expand-sm fixed-top">
+            editor = this;
+
+            let content = ` <nav class="navbar navbar-expand-sm fixed-top">
                                 <ul class="navbar-nav">
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
@@ -54,8 +56,8 @@ let Editor = (() => {
                                             </div>
                                             <div class="row vertical-align">
                                                 <div class="col">
-                                                    <button type="button" class="btn btn-primary noGlow" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns"></i></button>
-                                                    <button type="button" class="btn btn-primary noGlow" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns fa-rotate-270"></i></button>
+                                                    <button type="button" class="btn btn-primary" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns"></i></button>
+                                                    <button type="button" class="btn btn-primary" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns fa-rotate-270"></i></button>
                                                 </div>
                                                 <div class="col">
                                                     <label for="horizontal-split">Layout</label>
@@ -69,11 +71,9 @@ let Editor = (() => {
 
             $("body").append(content);
 
-            var splitobj = Split(["#codeCol", "#resultCol"], {
+            Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
-                    return {
-                        'flex-basis': `calc(${size}% - ${gutterSize}px)`
-                    }
+                    return {'flex-basis': `calc(${size}% - ${gutterSize}px)`}
                 },
 
                 sizes: [50, 50],
@@ -90,33 +90,33 @@ let Editor = (() => {
 
             if (location.hash) {
                 const getData = async id => {
-                    let response = await fetch(`http://100.66.121.164:5520/code/${id}`);
+                    let response = await fetch(`http://100.73.27.89:5520/code/${id}`);
                     return await response.json();
                 }
 
                 (async () => {
                     let data = await getData(location.hash.substring(1));
-                    $('#src')[0].value = JSON.parse(data.slice(1, -1)).Code;
-                    defaultText = $('#src')[0].value;
-                    $('code.language-html')[0].innerHTML = defaultText;
+                    $('#src').val(JSON.parse(data.slice(1, -1)).Code);
+                    defaultText = $('#src').val();
+                    editor.highlight(defaultText);
                 })();
             } else {
                 defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
-                $('#src')[0].value = defaultText;
+                $('#src').val(defaultText);
+                editor.highlight(defaultText);
             }
 
             $('src').focus();
             $('#indentSize').val(`${indentSize} spaces`);
             $('[data-toggle="tooltip"]').tooltip();
 
-            this.language = 'html';
-            this.listenLanguage(this.language);
-            this.getInput();
-            this.runCode();
-            this.renderOutput();
-            this.listenerForScroll();
-            this.modal();
-            this.sizeButtons();
+            editor.listenLanguage('html');
+            editor.getInput();
+            editor.runCode();
+            editor.renderOutput();
+            editor.listenerForScroll();
+            editor.modal();
+            editor.sizeButtons();
         },
         
         getInput: () => {
@@ -199,24 +199,23 @@ let Editor = (() => {
                 if (value == old_value) return;
                 
                 var old_value = value;
+
                 if (location.hash) {
                     const http = new XMLHttpRequest();
 
-                    http.open("PUT", `http://100.66.121.164:5520/code/${location.hash.substring(1)}`, true);
+                    http.open("PUT", `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
                     http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": value}));
                 } else {
                     localStorage.defaultText = value;
                 }
 
-                $('code', '.code-output').html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
-                Prism.highlightAll();
+                editor.highlight(value);
             });
-            
-            $(document).ready(function() {
-                var value = $('#src').val();
-                $('code', '.code-output').html(value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
-                Prism.highlightAll();
-            });
+        },
+
+        highlight: val => {
+            $('code', '.code-output').html(val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
+            Prism.highlightAll();
         },
         
         listenLanguage: language => {
