@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime, indentSize, layout, editor;
+let defaultText, theme, textSize, realtime, indentSize, layout, resultShown, split, editor;
 
 let Editor = (() => {
     return {
@@ -43,23 +43,27 @@ let Editor = (() => {
                                                 <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
                                             </div>
                                             <div class="row vertical-align">
-                                                <div class="col">
+                                                <div class="col-sm-3">
                                                     <select name="indent" class="custom-select" id="indentSize">
                                                         <option val="2spc">2 spaces</option>
                                                         <option val="4spc">4 spaces</option>
                                                         <option val="8spc">8 spaces</option>
                                                     </select>
                                                 </div>
+                                                <label for="indentSize">Indent Size</label>
+                                            </div>
+                                            <div class="row">
                                                 <div class="col">
-                                                    <label for="indentSize">Indent Size</label>
+                                                    <div class="custom-control custom-checkbox mb-3">
+                                                        <input type="checkbox" class="custom-control-input" id="resultShown">
+                                                        <label class="custom-control-label" for="resultShown">Show result?</label>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="row vertical-align">
+                                            <div class="row vertical-align" style="padding: 0">
                                                 <div class="col">
                                                     <button type="button" class="btn btn-primary" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns"></i></button>
                                                     <button type="button" class="btn btn-primary" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns fa-rotate-270"></i></button>
-                                                </div>
-                                                <div class="col">
                                                     <label for="horizontal-split">Layout</label>
                                                 </div>
                                             </div>
@@ -71,7 +75,7 @@ let Editor = (() => {
 
             $("body").append(content);
 
-            Split(["#codeCol", "#resultCol"], {
+            split = Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
                     return {'flex-basis': `calc(${size}% - ${gutterSize}px)`}
                 },
@@ -87,6 +91,8 @@ let Editor = (() => {
             realtime = (localStorage.padscapeRealtime) ? localStorage.padscapeRealtime : 'on';
             layout = (localStorage.layout) ? localStorage.layout : 'vertical';
             indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
+            resultShown = (localStorage.resultShown != undefined) ? localStorage.resultShown : true;
+            realtime = (localStorage.resultShown != undefined) ? localStorage.realtime : true;
 
             if (location.hash) {
                 const getData = async id => {
@@ -99,11 +105,13 @@ let Editor = (() => {
                     $('#src').val(JSON.parse(data.slice(1, -1)).Code);
                     defaultText = $('#src').val();
                     editor.highlight(defaultText);
+                    editor.showResult();
                 })();
             } else {
                 defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
                 $('#src').val(defaultText);
                 editor.highlight(defaultText);
+                editor.showResult();
             }
 
             $('src').focus();
@@ -114,9 +122,23 @@ let Editor = (() => {
             editor.getInput();
             editor.runCode();
             editor.renderOutput();
+            editor.saveText();
             editor.listenerForScroll();
             editor.modal();
             editor.sizeButtons();
+        },
+
+        saveText: () => {
+            $('#src').on('input', function() {
+                if (location.hash) {
+                    const http = new XMLHttpRequest();
+
+                    http.open("PUT", `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
+                    http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": this.value.replace(/'/g, "\\'")}));
+                } else {
+                    localStorage.defaultText = value;
+                }
+            });
         },
         
         getInput: () => {
@@ -165,29 +187,29 @@ let Editor = (() => {
         runCode: () => {
             $('#src').on('keyup', function() {
                 if (realtime == "on") {
-                    $('#result')[0].srcdoc = this.value;
+                    editor.showResult();
                 }
             });
 
             $('#run').click(function() {
-                $('#result')[0].srcdoc = $('#src')[0].value;
+                editor.showResult();
             });
 
             $('#realtimeMode').click(function() {
                 if ($(this).is(":checked")) {
-                    $('#result')[0].srcdoc = $('#src')[0].value;
+                    editor.showResult();
                 }
             });
 
             $(document).on("keyup keydown", function(e) {
                 if (e.altKey && e.keyCode == 82) {
-                    $('#result')[0].srcdoc = $('#src')[0].value;
+                    editor.showResult();
                 }
             });
-            
-            $(document).ready(function() {
-                $('#result')[0].srcdoc = $('#src')[0].value;
-            });
+        },
+
+        showResult: () => {
+            $('#result')[0].srcdoc = $('#src').val();
         },
         
         renderOutput: () => {
@@ -195,20 +217,8 @@ let Editor = (() => {
 
             $('#src').on('input keydown', function() {
                 var value = this.value;
-
                 if (value == old_value) return;
-                
                 var old_value = value;
-
-                if (location.hash) {
-                    const http = new XMLHttpRequest();
-
-                    http.open("PUT", `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
-                    http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": value}));
-                } else {
-                    localStorage.defaultText = value;
-                }
-
                 editor.highlight(value);
             });
         },
@@ -238,7 +248,7 @@ let Editor = (() => {
                     $(':root').css('--text-size', `${current + 2}px`);
                 }
 
-                textSize = current;
+                textSize = current + 2;
                 localStorage.padscapeTextSize = textSize;
             });
 
@@ -249,7 +259,7 @@ let Editor = (() => {
                     $(':root').css('--text-size', `${current - 2}px`);
                 }
 
-                textSize = current;
+                textSize = current - 2;
                 localStorage.padscapeTextSize = textSize;
             });
 
@@ -276,15 +286,15 @@ let Editor = (() => {
                 $('.size-plus-btn, .size-minus-btn').css('bottom', `${$(window).scrollTop() + 26}px`);
             });
 
-            var observer = new MutationObserver(function(mutations) {
+            let observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function() {
-                    var position = target.css('flex-basis').slice(5, -1);
+                    let position = target.css('flex-basis').slice(5, -1);
                     $('.size-plus-btn').css('left', `calc(${position} - 55px)`);
                     $('.size-minus-btn').css('left', `calc(${position} - 104px)`);
                 });    
             });
             
-            var target = $('#codeCol');
+            let target = $('#codeCol');
             observer.observe(target[0], {
                 attributes: true, attributeFilter: ['style']
             });
@@ -321,12 +331,7 @@ let Editor = (() => {
             });
 
             $('#realtimeMode').click(function() {
-                if ($(this).is(":checked")) {
-                    realtime = "on";
-                } else {
-                    realtime = "off";
-                }
-
+                realtime = ($(this).is(":checked")) ? "on" : "off";
                 localStorage.padscapeRealtime = realtime;
             });
 
@@ -334,22 +339,12 @@ let Editor = (() => {
                 $('#src').blur();
 
                 var indentSize = Number(this.value.slice(0, -7));
-
                 $(':root').css('--indent-size', indentSize);
-
                 localStorage.padscapeIndentSize = indentSize;
-
                 $('#src').focus();
             });
 
             $(document).ready(function() {
-                if (localStorage.padscapeRealtime == "on") {
-                    realtime = "on";
-                    $('#realtimeMode').prop('checked', true);
-                } else {
-                    realtime = "off";
-                }
-
                 if (localStorage.padscapeTheme == "dark") {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
@@ -365,6 +360,20 @@ let Editor = (() => {
 
                 $(':root').css('--indent-size', indentSize);
                 $('#indentSize').val(`${indentSize} spaces`);
+                $('#resultShown').prop('checked', resultShown);
+                $('#realtimeMode').prop('checked', realtime);
+
+                if (!resultShown) {
+                    $("#vertical-split, #horizontal-split").addClass('disabled');
+                    $("#codeCol, #resultCol").removeClass('col');
+                }                
+            });
+
+            $('#resultShown').click(function() {
+                $("#vertical-split, #horizontal-split").toggleClass('disabled');
+                resultShown = $('#resultShown').prop('checked');
+                (!resultShown) ? $("#codeCol, #resultCol").removeClass('col') : $("#codeCol, #resultCol").addClass('col');
+                localStorage.resultShown = resultShown;
             });
 
             $('#vertical-split').click(function() {
