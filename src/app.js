@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime, indentSize, layout, resultShown, split, editor;
+let defaultText, theme, textSize, realtime, indentSize, layout, resultShown, split, creator, editor;
 
 let Editor = (() => {
     return {
@@ -9,6 +9,9 @@ let Editor = (() => {
                                 <ul class="navbar-nav">
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+                                    </li>
+                                    <li class="nav-item">
+                                        <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S">Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i></button>
                                     </li>
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
@@ -81,18 +84,16 @@ let Editor = (() => {
                 },
 
                 sizes: [50, 50],
-                minSize: 290,
                 gutterSize: 6,
                 cursor: 'col-resize'
             });
 
             theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
             textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
-            realtime = (localStorage.padscapeRealtime) ? localStorage.padscapeRealtime : 'on';
+            realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
             layout = (localStorage.layout) ? localStorage.layout : 'vertical';
             indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
             resultShown = (localStorage.resultShown != undefined) ? localStorage.resultShown : true;
-            realtime = (localStorage.resultShown != undefined) ? localStorage.realtime : true;
 
             if (location.hash) {
                 const getData = async id => {
@@ -102,7 +103,17 @@ let Editor = (() => {
 
                 (async () => {
                     let data = await getData(location.hash.substring(1));
-                    $('#src').val(JSON.parse(data.slice(1, -1)).Code);
+                    let json = (data !== '[]') ? JSON.parse(data.slice(1, -1)) : undefined;
+
+                    if (json) {
+                        $('#src').val(json.Code);
+                        creator = json.Creator;
+                        editor.emptyResponse = false;
+                    } else {
+                        creator = 'admin';
+                        editor.emptyResponse = true;
+                    }
+
                     defaultText = $('#src').val();
                     editor.highlight(defaultText);
                     editor.showResult();
@@ -129,14 +140,14 @@ let Editor = (() => {
         },
 
         saveText: () => {
-            $('#src').on('input', function() {
+            $('#save').click(function() {
                 if (location.hash) {
                     const http = new XMLHttpRequest();
-
-                    http.open("PUT", `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
-                    http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": this.value.replace(/'/g, "\\'")}));
+                    let type = (editor.emptyResponse) ? "POST" : "PUT";
+                    http.open(type, `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
+                    http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": creator}));
                 } else {
-                    localStorage.defaultText = value;
+                    localStorage.defaultText = $("#src").val();
                 }
             });
         },
@@ -202,7 +213,7 @@ let Editor = (() => {
             });
 
             $(document).on("keyup keydown", function(e) {
-                if (e.altKey && e.keyCode == 82) {
+                if (e.altKey && e.keyCode === 82) {
                     editor.showResult();
                 }
             });
@@ -358,15 +369,15 @@ let Editor = (() => {
                     $('.navbar').addClass('bg-light navbar-light');
                 }
 
-                $(':root').css('--indent-size', indentSize);
-                $('#indentSize').val(`${indentSize} spaces`);
-                $('#resultShown').prop('checked', resultShown);
-                $('#realtimeMode').prop('checked', realtime);
-
                 if (!resultShown) {
                     $("#vertical-split, #horizontal-split").addClass('disabled');
                     $("#codeCol, #resultCol").removeClass('col');
-                }                
+                }
+
+                $(':root').css('--indent-size', indentSize);
+                $('#indentSize').val(`${indentSize} spaces`);
+                $('#resultShown').prop('checked', resultShown);
+                $('#realtimeMode').prop('checked', realtime == "on");
             });
 
             $('#resultShown').click(function() {
