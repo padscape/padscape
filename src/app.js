@@ -1,11 +1,11 @@
-let defaultText, theme, textSize, realtime, indentSize, layout, resultShown, split, creator, editor;
+let defaultText, theme, textSize, realtime, autosave, indentSize, layout, resultShown, split, creator, username, editor;
 
 let Editor = (() => {
     return {
         init: function() {
             editor = this;
 
-            let content = ` <nav class="navbar navbar-expand-sm fixed-top">
+            let content = ` <nav class="navbar navbar-expand-sm fixed-top vertical-align">
                                 <ul class="navbar-nav">
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
@@ -15,6 +15,11 @@ let Editor = (() => {
                                     </li>
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
+                                    </li>
+                                </ul>
+                                <ul class="navbar-nav ml-auto">
+                                    <li class="nav-item">
+                                        <p class="navbar-text" style="color: white" id="info"></p>
                                     </li>
                                 </ul>
                             </nav>
@@ -44,6 +49,10 @@ let Editor = (() => {
                                             <div class="custom-control custom-switch">
                                                 <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
                                                 <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
+                                            </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input noGlow shadow-none" id="autosaveMode">
+                                                <label class="custom-control-label" for="autosaveMode">Autosave Enabled</label>
                                             </div>
                                             <div class="row vertical-align">
                                                 <div class="col-sm-3">
@@ -78,6 +87,10 @@ let Editor = (() => {
 
             $("body").append(content);
 
+            $.getJSON('http://ip.jsontest.com/?callback=?', function(data) {
+                username = data.ip; // This will remain as such until a proper user-handling system is created
+            });
+
             split = Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
                     return {'flex-basis': `calc(${size}% - ${gutterSize}px)`}
@@ -88,12 +101,13 @@ let Editor = (() => {
                 cursor: 'col-resize'
             });
 
-            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
             textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
-            realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
-            layout = (localStorage.layout) ? localStorage.layout : 'vertical';
             indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
-            resultShown = (localStorage.resultShown != undefined) ? localStorage.resultShown : true;
+            realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
+            autosave = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'off';
+            resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
+            layout = (localStorage.padscapeLayout) ? localStorage.padscapeLayout : 'vertical';
+            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
 
             if (location.hash) {
                 const getData = async id => {
@@ -110,10 +124,11 @@ let Editor = (() => {
                         creator = json.Creator;
                         editor.emptyResponse = false;
                     } else {
-                        creator = 'admin';
+                        creator = username;
                         editor.emptyResponse = true;
                     }
 
+                    $('#info')[0].innerHTML = `A pad by ${creator}`;
                     defaultText = $('#src').val();
                     editor.highlight(defaultText);
                     editor.showResult();
@@ -123,6 +138,7 @@ let Editor = (() => {
                 $('#src').val(defaultText);
                 editor.highlight(defaultText);
                 editor.showResult();
+                creator = username;
             }
 
             $('src').focus();
@@ -141,15 +157,60 @@ let Editor = (() => {
 
         saveText: () => {
             $('#save').click(function() {
-                if (location.hash) {
-                    const http = new XMLHttpRequest();
-                    let type = (editor.emptyResponse) ? "POST" : "PUT";
-                    http.open(type, `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
-                    http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": creator}));
+                if (creator === username) {
+                    editor.saveToDatabase();
                 } else {
-                    localStorage.defaultText = $("#src").val();
+                    editor.forkCode();
                 }
             });
+
+            $('#src').on('keydown', function() {
+                if (autosave === "on") {
+                    if (creator === username) {
+                        editor.saveToDatabase();
+                    } else {
+                        editor.forkCode();
+                    }
+                }
+            });
+
+            $(document).on('keydown', function(e) {
+                if (e.ctrlKey && e.keyCode === 83) {
+                    if (creator === username) {
+                        e.preventDefault();
+                        editor.saveToDatabase();
+                    } else {
+                        editor.forkCode();
+                    }
+                }
+            });
+        },
+
+        saveToDatabase: () => {
+            if (location.hash) {
+                const http = new XMLHttpRequest();
+                let type = (editor.emptyResponse) ? "POST" : "PUT";
+                http.open(type, `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
+                http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": creator}));
+            } else {
+                localStorage.defaultText = $("#src").val();
+            }
+        },
+
+        forkCode: () => {
+            const getData = async id => {
+                let response = await fetch(`http://100.73.27.89:5520/code`);
+                return await response.json();
+            }
+
+            (async () => {
+                const http = new XMLHttpRequest();
+                let data = await getData(location.hash.substring(1));
+                let newId = Number(JSON.parse(data.slice(1, -1).split(',').pop()).CodeID) + 1;
+
+                http.open("POST", `http://100.73.27.89:5520/code/${newId}`, true);
+                http.send(JSON.stringify({"CodeID": newId, "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": username}));
+            })();
         },
         
         getInput: () => {
@@ -313,7 +374,7 @@ let Editor = (() => {
 
         modal: () => {
             $(document).on("keyup keydown", function(e) {
-                if (e.ctrlKey && e.keyCode == 73) {
+                if (e.ctrlKey && e.keyCode === 73) {
                     e.preventDefault();
                     $("#settingsModal").modal('toggle');
                     $('#src').focus();
@@ -378,6 +439,7 @@ let Editor = (() => {
                 $('#indentSize').val(`${indentSize} spaces`);
                 $('#resultShown').prop('checked', resultShown);
                 $('#realtimeMode').prop('checked', realtime == "on");
+                $('#autosaveMode').prop('checked', autosave == "on");
             });
 
             $('#resultShown').click(function() {
