@@ -87,9 +87,13 @@ let Editor = (() => {
 
             $("body").append(content);
 
-            $.getJSON('http://ip.jsontest.com/?callback=?', function(data) {
-                username = data.ip; // This will remain as such until a proper user-handling system is created
-            });
+            textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
+            indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
+            realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
+            autosave = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'off';
+            resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
+            layout = (localStorage.padscapeLayout) ? localStorage.padscapeLayout : 'vertical';
+            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
 
             split = Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
@@ -101,13 +105,10 @@ let Editor = (() => {
                 cursor: 'col-resize'
             });
 
-            textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
-            indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
-            realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
-            autosave = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'off';
-            resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
-            layout = (localStorage.padscapeLayout) ? localStorage.padscapeLayout : 'vertical';
-            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
+            const getUsername = async () => {
+                let response = await fetch('http://ip.jsontest.com');
+                return await response.json();
+            }
 
             if (location.hash) {
                 const getData = async id => {
@@ -124,11 +125,9 @@ let Editor = (() => {
                         creator = json.Creator;
                         editor.emptyResponse = false;
                     } else {
-                        creator = username;
                         editor.emptyResponse = true;
                     }
 
-                    $('#info')[0].innerHTML = `A pad by ${creator}`;
                     defaultText = $('#src').val();
                     editor.highlight(defaultText);
                     editor.showResult();
@@ -138,8 +137,15 @@ let Editor = (() => {
                 $('#src').val(defaultText);
                 editor.highlight(defaultText);
                 editor.showResult();
-                creator = username;
             }
+
+            (async () => {
+                let data = await getUsername();
+                username = data.ip;
+                if (!location.hash || editor.emptyResponse) creator = username;
+
+                $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
+            })();
 
             $('src').focus();
             $('#indentSize').val(`${indentSize} spaces`);
