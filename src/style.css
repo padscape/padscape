@@ -43,10 +43,12 @@ html, body, .row {
     height: 100%;
     padding: 1.5rem;
     padding-left: 2rem;
+    padding-top: 2.5rem
 }
 
 #resultCol {
     padding-right: 0;
+    padding-top: 1rem;
 }
 
 .nav-item {
