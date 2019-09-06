@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime, autosave, indentSize, layout, resultShown, split, creator, username, editor;
+let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, editor;
 
 let Editor = (() => {
     return {
@@ -35,52 +35,70 @@ let Editor = (() => {
                                 </div>
                             </div>
                             <div class="modal fade" id="settingsModal">
-                                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-light text-dark">
+                                <div class="modal-dialog modal-dialog-centered modal-lg modal-settings">
+                                    <div class="modal-content text-dark">
+                                        <div class="modal-header bg-light ">
                                             <h4 class="modal-title">Settings</h4>
                                             <button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button>
                                         </div>
                                         <div class="modal-body">
-                                            <div class="custom-control custom-switch">
-                                                <input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode">
-                                                <label class="custom-control-label" for="darkMode">Dark theme</label>
-                                            </div>
-                                            <div class="custom-control custom-switch">
-                                                <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
-                                                <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
-                                            </div>
-                                            <div class="custom-control custom-switch">
-                                                <input type="checkbox" class="custom-control-input noGlow shadow-none" id="autosaveMode">
-                                                <label class="custom-control-label" for="autosaveMode">Autosave Enabled</label>
-                                            </div>
-                                            <div class="row vertical-align">
-                                                <div class="col-sm-3">
-                                                    <select name="indent" class="custom-select" id="indentSize">
-                                                        <option val="2spc">2 spaces</option>
-                                                        <option val="4spc">4 spaces</option>
-                                                        <option val="8spc">8 spaces</option>
-                                                    </select>
+                                            <ul class="nav nav-tabs">
+                                                <li class="nav-item">
+                                                    <a class="nav-link active">Editor</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link">Libraries</a>
+                                                </li>
+                                            </ul>
+                                            <br>
+                                            <div class="container tab-pane" id="Editor">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode">
+                                                    <label class="custom-control-label" for="darkMode">Dark theme</label>
                                                 </div>
-                                                <label for="indentSize">Indent Size</label>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="custom-control custom-checkbox mb-3">
-                                                        <input type="checkbox" class="custom-control-input" id="resultShown">
-                                                        <label class="custom-control-label" for="resultShown">Show result?</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
+                                                    <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
+                                                </div>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="autosaveMode">
+                                                    <label class="custom-control-label" for="autosaveMode">Autosave Enabled</label>
+                                                </div>
+                                                <div class="row vertical-align" style="padding-top: 4px;">
+                                                    <div class="col-sm-6">
+                                                        <select name="indent" class="custom-select" id="indentSize">
+                                                            <option val="2spc">2 spaces</option>
+                                                            <option val="4spc">4 spaces</option>
+                                                            <option val="8spc">8 spaces</option>
+                                                        </select>
+                                                    </div>
+                                                    <label for="indentSize">Indent Size</label>
+                                                </div>
+                                                <div class="row" style="padding-top: 4px;">
+                                                    <div class="col">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="resultShown">
+                                                            <label class="custom-control-label" for="resultShown">Show result?</label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row vertical-align" style="padding: 0">
-                                                <div class="col">
-                                                    <button type="button" class="btn btn-primary" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns"></i></button>
-                                                    <button type="button" class="btn btn-primary" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns fa-rotate-270"></i></button>
-                                                    <label for="horizontal-split">Layout</label>
+                                            <div class="container tab-pane" id="Libraries">
+                                                <div class="row" style="padding-top: 0;">
+                                                    <div class="col-sm-8">
+                                                        <div class="dropdown">
+                                                            <input type="text" class="form-control lib-dropdown" placeholder="Search Libraries" id="libName">
+                                                            <div class="dropdown-menu scrollable-menu">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4" style="padding-left: 0;">
+                                                        <button type="button" class="btn btn-circle btn-lg btn-primary noGlow" id="addLib">+</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer bg-light"></div>
+                                        <div class="modal-footer bg-light">
                                         </div>
                                     </div>
                                 </div>`;
@@ -92,10 +110,9 @@ let Editor = (() => {
             realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
             autosave = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'off';
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
-            layout = (localStorage.padscapeLayout) ? localStorage.padscapeLayout : 'vertical';
             theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
 
-            split = Split(["#codeCol", "#resultCol"], {
+            Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
                     return {'flex-basis': `calc(${size}% - ${gutterSize}px)`}
                 },
@@ -221,12 +238,12 @@ let Editor = (() => {
         
         getInput: () => {
             $('#src').on('keydown', function(e) {
-                var keyCode = e.keyCode || e.which;
+                let keyCode = e.keyCode || e.which;
 
                 if (keyCode === 9) {
                     e.preventDefault();
-                    var start = this.selectionStart;
-                    var end = this.selectionEnd;
+                    let start = this.selectionStart;
+                    let end = this.selectionEnd;
 
                     if (start !== end) {
                         let text = '';
@@ -247,12 +264,12 @@ let Editor = (() => {
                     this.selectionEnd = start + 1;
                 } else if (keyCode === 13) {
                     e.preventDefault();
-                    var start = this.selectionStart;
-                    var line = this.value.substring(0, this.selectionStart).split("\n").pop();
-                    var indent = line.match(/^\s*/)[0];
+                    let start = this.selectionStart;
+                    let line = this.value.substring(0, this.selectionStart).split('\n').pop();
+                    let indent = line.match(/^\s*/)[0];
 
-                    var textBefore = this.value.substring(0, start);
-                    var textAfter  = this.value.substring(start, this.value.length);
+                    let textBefore = this.value.substring(0, start);
+                    let textAfter  = this.value.substring(start, this.value.length);
 
                     $(this).val(textBefore + "\n" + indent + textAfter);
 
@@ -296,7 +313,7 @@ let Editor = (() => {
             $('#src').on('input keydown', function() {
                 var value = this.value;
                 if (value == old_value) return;
-                var old_value = value;
+                old_value = value;
                 editor.highlight(value);
             });
         },
@@ -437,9 +454,11 @@ let Editor = (() => {
                 }
 
                 if (!resultShown) {
-                    $("#vertical-split, #horizontal-split").addClass('disabled');
                     $("#codeCol, #resultCol").removeClass('col');
                 }
+
+                $('#Editor').css('display', 'block')
+                $('#Libraries').css('display', 'none')
 
                 $(':root').css('--indent-size', indentSize);
                 $('#indentSize').val(`${indentSize} spaces`);
@@ -449,28 +468,79 @@ let Editor = (() => {
             });
 
             $('#resultShown').click(function() {
-                $("#vertical-split, #horizontal-split").toggleClass('disabled');
                 resultShown = $('#resultShown').prop('checked');
                 (!resultShown) ? $("#codeCol, #resultCol").removeClass('col') : $("#codeCol, #resultCol").addClass('col');
                 localStorage.resultShown = resultShown;
             });
 
-            $('#vertical-split').click(function() {
-                if (layout != "vertical") {
-                    layout = "vertical";
+            $('.nav-tabs a').click(function() {
+                $(this).tab('show');
 
-                    console.log('Switch to vertical split');
+                let tabs = $('.tab-pane');
+
+                for (let i = 0; i <= tabs.length - 1; i++) {
+                    $(tabs[i]).css('display', 'none');
+                }
+
+                $(`#${this.innerHTML}`).css('display', 'block');
+            });
+
+            $('#libName').on('input keyup', function() {
+                let value = this.value;
+
+                $(this).dropdown('toggle');
+
+                if (value !== '') {
+                    const getLibs = async () => {
+                        let response = await fetch(`https://api.cdnjs.com/libraries?search=${value}`);
+                        return await response.json();
+                    }
+
+                    (async () => {
+                        $('.dropdown-menu')[0].innerHTML = '';
+
+                        let data = await getLibs();
+                        let i = 0;
+
+                        data.results.some((res) => {
+                            if (i > 30 || i >= data.results.length) return true;
+                            $('.dropdown-menu')[0].innerHTML += `<a class="dropdown-item libsItem" onclick="$('#libName').val($(this)[0].innerHTML); $('.dropdown-menu').removeClass('show'); libLink = '${res.latest}'">${res.name}</a>`;
+                            i++;
+                        });
+                    })();
                 }
             });
 
-            $('#horizontal-split').click(function() {
-                if (layout != "horizontal") {
-                    layout = "horizontal";
+            $('#addLib').on('click', function() {
+                let libName = $('#libName').val();
 
-                    console.log('Switch to horizontal split');
+                if (libName !== '') {
+                    let index;
+                    let lines = $('#src').val().split('\n');
+
+                    index = lines.length;
+                    
+                    lines.some((line, indx) => {
+                        if (line.includes('</head>')) {
+                            index = indx;
+                            return true;
+                        } else if (line.includes('</body>') || line.includes('</html>')) {
+                            index = indx;
+                        }
+                    });
+
+                    if (index === lines.length) lines.push('');
+                    let targetLine = lines[index];
+                    let indent = targetLine.match(/^\s*/)[0];
+                    lines.splice(index, 0, `${indent}${(indent) ? '\t' : ''}<script src="${libLink}"></script>`);
+
+                    $('#src').val(lines.join('\n'));
+                    defaultText = $('#src').val();
+                    editor.highlight(defaultText);
+                    editor.showResult();
                 }
             });
-        },
+        }
     }
 })();
 
