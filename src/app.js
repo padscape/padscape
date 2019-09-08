@@ -87,7 +87,7 @@ let Editor = (() => {
                                                 <div class="row" style="padding-top: 0;">
                                                     <div class="col-sm-8">
                                                         <div class="dropdown">
-                                                            <input type="text" class="form-control lib-dropdown" placeholder="Search Libraries" id="libName">
+                                                            <input type="text" class="form-control lib-dropdown" placeholder="Search libraries by name or paste URL" id="libName">
                                                             <div class="dropdown-menu scrollable-menu">
                                                             </div>
                                                         </div>
@@ -96,6 +96,8 @@ let Editor = (() => {
                                                         <button type="button" class="btn btn-circle btn-lg btn-primary noGlow" id="addLib">+</button>
                                                     </div>
                                                 </div>
+                                                <br>
+                                                <span class="font-weight-bold">Note: </span><span>JavaScript and CSS libraries will automatically be placed at the bottom of the <code>head</code>, <code>body</code> or <code>html</code> tag. If none of these exist, it will be added to the end of the document.</span>
                                             </div>
                                         </div>
                                         <div class="modal-footer bg-light">
@@ -453,9 +455,7 @@ let Editor = (() => {
                     $('.navbar').addClass('bg-light navbar-light');
                 }
 
-                if (!resultShown) {
-                    $("#codeCol, #resultCol").removeClass('col');
-                }
+                if (!resultShown) $("#codeCol, #resultCol").removeClass('col');
 
                 $('#Editor').css('display', 'block')
                 $('#Libraries').css('display', 'none')
@@ -490,25 +490,29 @@ let Editor = (() => {
 
                 $(this).dropdown('toggle');
 
-                if (value !== '') {
-                    const getLibs = async () => {
-                        let response = await fetch(`https://api.cdnjs.com/libraries?search=${value}`);
-                        return await response.json();
-                    }
-
-                    (async () => {
-                        $('.dropdown-menu')[0].innerHTML = '';
-
-                        let data = await getLibs();
-                        let i = 0;
-
-                        data.results.some((res) => {
-                            if (i > 30 || i >= data.results.length) return true;
-                            $('.dropdown-menu')[0].innerHTML += `<a class="dropdown-item libsItem" onclick="$('#libName').val($(this)[0].innerHTML); $('.dropdown-menu').removeClass('show'); libLink = '${res.latest}'">${res.name}</a>`;
-                            i++;
-                        });
-                    })();
+                if (value.includes('https:') || value.includes('http:') || value === '' || value === ' ') {
+                    $('.dropdown-menu').removeClass('show');
+                    $('.libsItem').remove();
+                    return;
                 }
+
+                const getLibs = async () => {
+                    let response = await fetch(`https://api.cdnjs.com/libraries?search=${value}`);
+                    return await response.json();
+                }
+
+                (async () => {
+                    $('.dropdown-menu')[0].innerHTML = '';
+
+                    let data = await getLibs();
+                    let i = 0;
+
+                    data.results.some((res) => {
+                        if (i > 30 || i >= data.results.length) return true;
+                        $('.dropdown-menu')[0].innerHTML += `<a class="dropdown-item libsItem" onclick="$('#libName').val($(this)[0].innerHTML); $('.dropdown-menu').removeClass('show'); libLink = '${res.latest}'">${res.name}</a>`;
+                        i++;
+                    });
+                })();
             });
 
             $('#addLib').on('click', function() {
@@ -532,7 +536,8 @@ let Editor = (() => {
                     if (index === lines.length) lines.push('');
                     let targetLine = lines[index];
                     let indent = targetLine.match(/^\s*/)[0];
-                    lines.splice(index, 0, `${indent}${(indent) ? '\t' : ''}<script src="${libLink}"></script>`);
+                    let type = libLink.split('.').pop();
+                    lines.splice(index, 0, `${indent}${(indent) ? '\t' : ''}<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}${(libName.includes('https://')) ? libName : libLink}">${(type === 'js') ? '</script>' : ''}`);
 
                     $('#src').val(lines.join('\n'));
                     defaultText = $('#src').val();
