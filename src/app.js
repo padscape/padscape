@@ -108,7 +108,7 @@ let Editor = (() => {
             $("body").append(content);
 
             textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
-            indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
+            indentSize = (![0, undefined].includes(localStorage.padscapeIndentSize) && typeof localStorage.padscapeIndentSize != "string") ? localStorage.padscapeIndentSize : 4;
             realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
             autosave = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'off';
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
@@ -339,10 +339,10 @@ let Editor = (() => {
 
         sizeButtons: () => {
             $('.size-plus-btn').click(function() {
-                var current = Number($(':root').css('--text-size').slice(0, -2));
+                var current = Number($('.root').css('--text-size').slice(0, -2));
 
                 if (current < 55) {
-                    $(':root').css('--text-size', `${current + 2}px`);
+                    $('.root').css('--text-size', `${current + 2}px`);
                 }
 
                 textSize = current + 2;
@@ -350,10 +350,10 @@ let Editor = (() => {
             });
 
             $('.size-minus-btn').click(function() {
-                var current = Number($(':root').css('--text-size').slice(0, -2));
+                var current = Number($('.root').css('--text-size').slice(0, -2));
 
                 if (current > 1) {
-                    $(':root').css('--text-size', `${current - 2}px`);
+                    $('.root').css('--text-size', `${current - 2}px`);
                 }
 
                 textSize = current - 2;
@@ -361,7 +361,7 @@ let Editor = (() => {
             });
 
             $(document).ready(function() {
-                $(':root').css('--text-size', `${textSize}px`);
+                $('.root').css('--text-size', `${textSize}px`);
             });
 
             $('.size-plus-btn, .size-minus-btn').mouseover(function() {
