@@ -11,7 +11,7 @@ let Editor = (() => {
                                         <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
                                     </li>
                                     <li class="nav-item">
-                                        <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S">Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i></button>
+                                        <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S"></button>
                                     </li>
                                     <li class="nav-item">
                                         <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
@@ -25,7 +25,7 @@ let Editor = (() => {
                             </nav>
                             <div class="row">
                                 <div id="codeCol" class="col">
-                                    <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow"></textarea>
+                                    <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" autofocus></textarea>
                                     <pre class="code-output"><code class="language-html"></code></pre>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
                                     <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
@@ -37,7 +37,7 @@ let Editor = (() => {
                             <div class="modal fade" id="settingsModal">
                                 <div class="modal-dialog modal-dialog-centered modal-lg modal-settings">
                                     <div class="modal-content text-dark">
-                                        <div class="modal-header bg-light ">
+                                        <div class="modal-header bg-light">
                                             <h4 class="modal-title">Settings</h4>
                                             <button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button>
                                         </div>
@@ -82,6 +82,7 @@ let Editor = (() => {
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>
                                             </div>
                                             <div class="container tab-pane" id="Libraries">
                                                 <div class="row" style="padding-top: 0;">
@@ -97,7 +98,7 @@ let Editor = (() => {
                                                     </div>
                                                 </div>
                                                 <br>
-                                                <span class="font-weight-bold">Note: </span><span>JavaScript and CSS libraries will automatically be placed at the bottom of the <code>head</code>, <code>body</code> or <code>html</code> tag. If none of these exist, it will be added to the end of the document.</span>
+                                                <span class="font-weight-bold">Note: </span><span>JavaScript and CSS libraries will automatically be placed at the bottom of the <code>head</code>, <code>body</code> or <code>html</code> tag precedently. If none of these exist, it will be added to the end of the document.</span>
                                             </div>
                                         </div>
                                         <div class="modal-footer bg-light">
@@ -108,9 +109,9 @@ let Editor = (() => {
             $("body").append(content);
 
             textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
-            indentSize = (![0, undefined].includes(localStorage.padscapeIndentSize) && typeof localStorage.padscapeIndentSize != "string") ? localStorage.padscapeIndentSize : 4;
+            indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
             realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
-            autosave = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'off';
+            autosave = (localStorage.padscapeAutosave != undefined) ? localStorage.padscapeAutosave : 'off';
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
             theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
 
@@ -125,32 +126,15 @@ let Editor = (() => {
             });
 
             const getUsername = async () => {
-                let response = await fetch('http://ip.jsontest.com');
+                let response = await fetch('https://api.ipify.org?format=json');
                 return await response.json();
             }
 
             if (location.hash) {
-                const getData = async id => {
-                    let response = await fetch(`http://100.73.27.89:5520/code/${id}`);
-                    return await response.json();
-                }
-
-                (async () => {
-                    let data = await getData(location.hash.substring(1));
-                    let json = (data !== '[]') ? JSON.parse(data.slice(1, -1)) : undefined;
-
-                    if (json) {
-                        $('#src').val(json.Code);
-                        creator = json.Creator;
-                        editor.emptyResponse = false;
-                    } else {
-                        editor.emptyResponse = true;
-                    }
-
-                    defaultText = $('#src').val();
-                    editor.highlight(defaultText);
-                    editor.showResult();
-                })();
+                getPadContents();
+                defaultText = $('#src').val();
+                editor.highlight(defaultText);
+                editor.showResult();
             } else {
                 defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
                 $('#src').val(defaultText);
@@ -163,10 +147,12 @@ let Editor = (() => {
                 username = data.ip;
                 if (!location.hash || editor.emptyResponse) creator = username;
 
+                $('#save')[0].innerHTML += `${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`;
                 $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
+
+                if (creator !== username || !location.hash) $('#delete').remove();
             })();
 
-            $('src').focus();
             $('#indentSize').val(`${indentSize} spaces`);
             $('[data-toggle="tooltip"]').tooltip();
 
@@ -182,60 +168,31 @@ let Editor = (() => {
 
         saveText: () => {
             $('#save').click(function() {
-                if (creator === username) {
-                    editor.saveToDatabase();
-                } else {
-                    editor.forkCode();
-                }
+                save();
             });
 
             $('#src').on('keydown', function() {
-                if (autosave === "on") {
-                    if (creator === username) {
-                        editor.saveToDatabase();
-                    } else {
-                        editor.forkCode();
-                    }
+                if (!location.hash) {
+                    localStorage.defaultText = $(this).val();
+                } else {
+                    if (autosave) save();
                 }
             });
 
             $(document).on('keydown', function(e) {
                 if (e.ctrlKey && e.keyCode === 83) {
-                    if (creator === username) {
-                        e.preventDefault();
-                        editor.saveToDatabase();
-                    } else {
-                        editor.forkCode();
-                    }
+                    e.preventDefault();
+                    save();
                 }
             });
-        },
 
-        saveToDatabase: () => {
-            if (location.hash) {
-                const http = new XMLHttpRequest();
-                let type = (editor.emptyResponse) ? "POST" : "PUT";
-                http.open(type, `http://100.73.27.89:5520/code/${location.hash.substring(1)}`, true);
-                http.send(JSON.stringify({"CodeID": location.hash.substring(1), "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": creator}));
-            } else {
-                localStorage.defaultText = $("#src").val();
+            save = () => {
+                if (creator === username) {
+                    saveToDatabase();
+                } else {
+                    forkCode();
+                }
             }
-        },
-
-        forkCode: () => {
-            const getData = async id => {
-                let response = await fetch(`http://100.73.27.89:5520/code`);
-                return await response.json();
-            }
-
-            (async () => {
-                const http = new XMLHttpRequest();
-                let data = await getData(location.hash.substring(1));
-                let newId = Number(JSON.parse(data.slice(1, -1).split(',').pop()).CodeID) + 1;
-
-                http.open("POST", `http://100.73.27.89:5520/code/${newId}`, true);
-                http.send(JSON.stringify({"CodeID": newId, "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": username}));
-            })();
         },
         
         getInput: () => {
@@ -339,10 +296,10 @@ let Editor = (() => {
 
         sizeButtons: () => {
             $('.size-plus-btn').click(function() {
-                var current = Number($('.root').css('--text-size').slice(0, -2));
+                var current = Number($(':root').css('--text-size').slice(0, -2));
 
                 if (current < 55) {
-                    $('.root').css('--text-size', `${current + 2}px`);
+                    $(':root').css('--text-size', `${current + 2}px`);
                 }
 
                 textSize = current + 2;
@@ -350,10 +307,10 @@ let Editor = (() => {
             });
 
             $('.size-minus-btn').click(function() {
-                var current = Number($('.root').css('--text-size').slice(0, -2));
+                var current = Number($(':root').css('--text-size').slice(0, -2));
 
                 if (current > 1) {
-                    $('.root').css('--text-size', `${current - 2}px`);
+                    $(':root').css('--text-size', `${current - 2}px`);
                 }
 
                 textSize = current - 2;
@@ -361,7 +318,7 @@ let Editor = (() => {
             });
 
             $(document).ready(function() {
-                $('.root').css('--text-size', `${textSize}px`);
+                $(':root').css('--text-size', `${textSize}px`);
             });
 
             $('.size-plus-btn, .size-minus-btn').mouseover(function() {
@@ -411,6 +368,10 @@ let Editor = (() => {
                 $('#src').focus();
             });
 
+            $('#delete').click(function() {
+                deleteCode();
+            });
+
             $('#darkMode').click(function() {
                 if ($(this).is(":checked")) {
                     theme = "dark";
@@ -430,6 +391,11 @@ let Editor = (() => {
             $('#realtimeMode').click(function() {
                 realtime = ($(this).is(":checked")) ? "on" : "off";
                 localStorage.padscapeRealtime = realtime;
+            });
+
+            $('#autosaveMode').click(function() {
+                autosave = ($(this).is(":checked")) ? "on" : "off";
+                localStorage.padscapeAutosave = autosave;
             });
 
             $('#indentSize').on('change', function() {
