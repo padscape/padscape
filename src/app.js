@@ -6,22 +6,27 @@ let Editor = (() => {
             editor = this;
 
             let content = ` <nav class="navbar navbar-expand-sm fixed-top vertical-align">
-                                <ul class="navbar-nav">
-                                    <li class="nav-item">
-                                        <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S"></button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
-                                    </li>
-                                </ul>
-                                <ul class="navbar-nav ml-auto">
-                                    <li class="nav-item">
-                                        <p class="navbar-text" style="color: white" id="info"></p>
-                                    </li>
-                                </ul>
+			                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+				                    <span class="navbar-toggler-icon"></span>
+			                    </button>
+			                    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+									<ul class="navbar-nav">
+										<li class="nav-item">
+											<button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+										</li>
+										<li class="nav-item">
+											<button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S"></button>
+										</li>
+										<li class="nav-item">
+											<button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
+										</li>
+									</ul>
+									<ul class="navbar-nav ml-auto">
+										<li class="nav-item">
+											<p class="navbar-text" style="color: white" id="info"></p>
+										</li>
+									</ul>
+								</div>
                             </nav>
                             <div class="row">
                                 <div id="codeCol" class="col">
@@ -108,8 +113,8 @@ let Editor = (() => {
 
             $("body").append(content);
 
-            textSize = (localStorage.padscapeTextSize != 'NaN') ? localStorage.padscapeTextSize : 19;
-            indentSize = (localStorage.padscapeIndentSize != 'NaN') ? localStorage.padscapeIndentSize : 4;
+            textSize = (typeof localStorage.padscapeTextSize == Number) ? localStorage.padscapeTextSize : 19;
+            indentSize = (typeof localStorage.padscapeIndentSize == Number) ? localStorage.padscapeIndentSize : 4;
             realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
             autosave = (localStorage.padscapeAutosave != undefined) ? localStorage.padscapeAutosave : 'off';
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
