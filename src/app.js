@@ -426,7 +426,10 @@ let Editor = (() => {
                     $('.navbar').addClass('bg-light navbar-light');
                 }
 
-                if (!resultShown) $("#codeCol, #resultCol").removeClass('col');
+                if (!resultShown) {
+                    $("#codeCol, #resultCol").removeClass('col');
+                    $("#src, .code-output").css("padding-top", "4.5rem");
+                }
 
                 $('#Editor').css('display', 'block')
                 $('#Libraries').css('display', 'none')
@@ -440,7 +443,14 @@ let Editor = (() => {
 
             $('#resultShown').click(function() {
                 resultShown = $('#resultShown').prop('checked');
-                (!resultShown) ? $("#codeCol, #resultCol").removeClass('col') : $("#codeCol, #resultCol").addClass('col');
+                if (!resultShown) {
+                    $("#codeCol, #resultCol").removeClass('col')
+                    $("#src, .code-output").css({"padding-top": "5.5rem", "padding-left": "1.05rem"});
+                } else {
+                    $("#codeCol, #resultCol").addClass('col');
+                    $("#src, .code-output").css({"padding-top": "2.5rem", "padding-left": "2rem"});
+                }
+
                 localStorage.resultShown = resultShown;
             });
 
