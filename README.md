@@ -6,6 +6,10 @@
 
 Padscape is a new HTML realtime web editor. It will be available in several platforms in the future, like Android and Desktop, but right now it is only available on the web. :cry:
 
+## Using
+Go to https://padscape.github.io/padscape/
+
+## Features
 Padscape will feature:
 - Syntax highlighting with numerous themes
 - The ability to use links to see other people's Padscapes
@@ -15,11 +19,13 @@ Padscape will feature:
 Current features:
 - Syntax highlighting (2 themes)
 
-# Useful resources
+## Built with
+- [Bootstrap 4](https://getbootstrap.com/) - Primary CSS framework
+- [jQuery](https://jquery.com/) - JavaScript library for HTML document traversal
+- [Split.js](https://split.js.org/) - Utility for resizeable split panes
+- [Prism.js](https://prismjs.com/) - Syntax highlighting library
+
+## Useful resources
 - [Contributing Guidelines](https://github.com/padscape/padscape/blob/master/CONTRIBUTING.md)
 - [Issues](https://github.com/padscape/padscape/issues)
 - [Pull Requests](https://github.com/padscape/padscape/pulls)
-
-# Using (currently)
-
-Go to `https://padscape.github.io/padscape/`
