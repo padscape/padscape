@@ -5,38 +5,41 @@ let Editor = (() => {
         init: function() {
             editor = this;
 
-            let content = ` <nav class="navbar navbar-expand-sm fixed-top vertical-align">
-			                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-				                    <span class="navbar-toggler-icon"></span>
-			                    </button>
-			                    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-									<ul class="navbar-nav">
-										<li class="nav-item">
-											<button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
-										</li>
-										<li class="nav-item">
-											<button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S"></button>
-										</li>
-										<li class="nav-item">
-											<button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
-										</li>
-									</ul>
-									<ul class="navbar-nav ml-auto">
-										<li class="nav-item">
-											<p class="navbar-text" style="color: white" id="info"></p>
-										</li>
-									</ul>
-								</div>
-                            </nav>
-                            <div class="row">
-                                <div id="codeCol" class="col">
-                                    <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" autofocus></textarea>
-                                    <pre class="code-output"><code class="language-html"></code></pre>
-                                    <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
-                                    <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
-                                </div>
-                                <div id="resultCol" class="col">
-                                    <iframe id="result"></iframe></div>
+            let content = ` <div id="loader"></div>
+                            <div id="page">
+                                <nav class="navbar navbar-expand-sm fixed-top vertical-align">
+                                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+                                        <span class="navbar-toggler-icon"></span>
+                                    </button>
+                                    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                                        <ul class="navbar-nav">
+                                            <li class="nav-item">
+                                                <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+                                            </li>
+                                            <li class="nav-item">
+                                                <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S"></button>
+                                            </li>
+                                            <li class="nav-item">
+                                                <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
+                                            </li>
+                                        </ul>
+                                        <ul class="navbar-nav ml-auto">
+                                            <li class="nav-item">
+                                                <p class="navbar-text" style="color: white" id="info"></p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </nav>
+                                <div class="row">
+                                    <div id="codeCol" class="col">
+                                        <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" autofocus></textarea>
+                                        <pre class="code-output"><code class="language-html"></code></pre>
+                                        <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
+                                        <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
+                                    </div>
+                                    <div id="resultCol" class="col">
+                                        <iframe id="result"></iframe></div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal fade" id="settingsModal">
@@ -169,6 +172,11 @@ let Editor = (() => {
             editor.listenerForScroll();
             editor.modal();
             editor.sizeButtons();
+
+            window.onload = () => {
+                $('#loader').css('visibility', 'hidden');
+                $('#page').css({'visibility': 'visible', 'opacity': '1'});
+            };
         },
 
         saveText: () => {
@@ -347,14 +355,13 @@ let Editor = (() => {
 
             let observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function() {
-                    let position = target.css('flex-basis').slice(5, -1);
+                    let position = $('#codeCol').css('flex-basis').slice(5, -1);
                     $('.size-plus-btn').css('left', `calc(${position} - 55px)`);
                     $('.size-minus-btn').css('left', `calc(${position} - 104px)`);
                 });    
             });
             
-            let target = $('#codeCol');
-            observer.observe(target[0], {
+            observer.observe($('#codeCol')[0], {
                 attributes: true, attributeFilter: ['style']
             });
         },
@@ -446,9 +453,11 @@ let Editor = (() => {
                 if (!resultShown) {
                     $("#codeCol, #resultCol").removeClass('col')
                     $("#src, .code-output").css({"padding-top": "5.5rem", "padding-left": "1.05rem"});
+                    $('#codeCol').css('flex-basis', 'calc(100% - 3px)');
                 } else {
                     $("#codeCol, #resultCol").addClass('col');
                     $("#src, .code-output").css({"padding-top": "2.5rem", "padding-left": "2rem"});
+                    $('#codeCol').css('flex-basis', 'calc(50% - 3px)');
                 }
 
                 localStorage.resultShown = resultShown;
