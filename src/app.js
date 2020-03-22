@@ -100,9 +100,10 @@ let Editor = (() => {
                                                             <div class="dropdown-menu scrollable-menu">
                                                             </div>
                                                         </div>
+                                                        <ul id="libList" class="list-group list-group-flush"></ul>
                                                     </div>
                                                     <div class="col-sm-4" style="padding-left: 0;">
-                                                        <button type="button" class="btn btn-circle btn-lg btn-primary noGlow" id="addLib">+</button>
+                                                        <button type="button" class="btn btn-circle btn-primary noGlow" id="addLib">+</button>
                                                     </div>
                                                 </div>
                                                 <br>
@@ -450,16 +451,7 @@ let Editor = (() => {
 
             $('#resultShown').click(function() {
                 resultShown = $('#resultShown').prop('checked');
-                if (!resultShown) {
-                    $("#codeCol, #resultCol").removeClass('col')
-                    $("#src, .code-output").css({"padding-top": "5.5rem", "padding-left": "1.05rem"});
-                    $('#codeCol').css('flex-basis', 'calc(100% - 3px)');
-                } else {
-                    $("#codeCol, #resultCol").addClass('col');
-                    $("#src, .code-output").css({"padding-top": "2.5rem", "padding-left": "2rem"});
-                    $('#codeCol').css('flex-basis', 'calc(50% - 3px)');
-                }
-
+                $('#resultCol').css('display', (resultShown) ? 'block' : 'none');
                 localStorage.resultShown = resultShown;
             });
 
@@ -512,6 +504,8 @@ let Editor = (() => {
                     let index;
                     let lines = $('#src').val().split('\n');
 
+                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${libName} <button type="button" class="btn btn-circle btn-danger ml-auto noGlow" id="removeLib">-</button></li>`;
+
                     index = lines.length;
                     
                     lines.some((line, indx) => {
@@ -534,6 +528,28 @@ let Editor = (() => {
                     editor.highlight(defaultText);
                     editor.showResult();
                 }
+            });
+
+            $('body').delegate('#removeLib', 'click', function(){
+                let libName = $(this).parent().text().slice(0, -2);
+
+                const getLib = async () => {
+                    let response = await fetch(`https://api.cdnjs.com/libraries/${libName}?fields=name,version,filename`);
+                    return await response.json();
+                }
+
+                (async () => {
+                    let data = await getLib();
+                    let type = data.filename.split('.').pop();
+
+                    $('#src').val($('#src').val().replace(`<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}https://cdnjs.cloudflare.com/ajax/libs/${data.name}/${data.version}/${data.filename}">${(type === 'js') ? '</script>' : ''}`, ''));
+                    defaultText = $('#src').val();
+                    editor.highlight(defaultText);
+                    editor.showResult();
+                })();
+
+                
+                $(this).parent().remove();
             });
         }
     }
