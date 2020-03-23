@@ -122,7 +122,7 @@ let Editor = (() => {
             realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
             autosave = (localStorage.padscapeAutosave != undefined) ? localStorage.padscapeAutosave : 'off';
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
-            libs = (localStorage.padscapeLibs != "undefined") ? JSON.parse(localStorage.padscapeLibs) : [];
+            libs = (localStorage.padscapeLibs != undefined && localStorage.padscapeLibs != "undefined") ? JSON.parse(localStorage.padscapeLibs) : [];
             theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'dark';
 
             Split(["#codeCol", "#resultCol"], {
