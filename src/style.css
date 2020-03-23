@@ -7,6 +7,19 @@
     --indent-size: 4;
 }
 
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #cccccc;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+}
+
 html, body {
     overflow: hidden;
 }
@@ -121,8 +134,8 @@ html, body, #page, .row {
     border-top: 16px solid #3498db;
     width: 120px;
     height: 120px;
-    -webkit-animation: spin 2s ease infinite;
-    animation: spin 2s ease infinite;
+    -webkit-animation: spin 1.5s ease infinite;
+    animation: spin 1.5s ease infinite;
 }
   
 @-webkit-keyframes spin {
