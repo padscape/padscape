@@ -1,3 +1,7 @@
+::-webkit-scrollbar-thumb {
+    background: rgba(150, 150, 150, 50); 
+}
+
 #src {
     resize: none;
     -moz-tab-size: var(--indent-size);
