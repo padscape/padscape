@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, editor;
+let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, editor;
 
 let Editor = (() => {
     return {
@@ -122,7 +122,8 @@ let Editor = (() => {
             realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
             autosave = (localStorage.padscapeAutosave != undefined) ? localStorage.padscapeAutosave : 'off';
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
-            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'white';
+            libs = (localStorage.padscapeLibs != "undefined") ? JSON.parse(localStorage.padscapeLibs) : [];
+            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'dark';
 
             Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
@@ -185,12 +186,8 @@ let Editor = (() => {
                 save();
             });
 
-            $('#src').on('keydown', function() {
-                if (!location.hash) {
-                    localStorage.defaultText = $(this).val();
-                } else {
-                    if (autosave) save();
-                }
+            $('#src').on('keyup keydown', function() {
+                if (autosave) save();
             });
 
             $(document).on('keydown', function(e) {
@@ -201,12 +198,16 @@ let Editor = (() => {
             });
 
             save = () => {
-                if (creator === username) {
+                if (!location.hash) {
+                    localStorage.defaultText = $('#src').val();
+                } else if (creator === username) {
                     saveToDatabase();
                 } else {
                     forkCode();
                 }
             }
+
+            editor.saveText.save = save;
         },
         
         getInput: () => {
@@ -447,6 +448,10 @@ let Editor = (() => {
                 $('#resultShown').prop('checked', resultShown);
                 $('#realtimeMode').prop('checked', realtime == "on");
                 $('#autosaveMode').prop('checked', autosave == "on");
+
+                libs.forEach(lib => {
+                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <button type="button" class="btn btn-circle btn-danger ml-auto noGlow" id="removeLib">-</button></li>`;
+                });
             });
 
             $('#resultShown').click(function() {
@@ -504,8 +509,6 @@ let Editor = (() => {
                     let index;
                     let lines = $('#src').val().split('\n');
 
-                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${libName} <button type="button" class="btn btn-circle btn-danger ml-auto noGlow" id="removeLib">-</button></li>`;
-
                     index = lines.length;
                     
                     lines.some((line, indx) => {
@@ -517,14 +520,22 @@ let Editor = (() => {
                         }
                     });
 
-                    if (index === lines.length) lines.push('');
                     let targetLine = lines[index];
                     let indent = targetLine.match(/^\s*/)[0];
                     let type = libLink.split('.').pop();
-                    lines.splice(index, 0, `${indent}${(indent) ? '\t' : ''}<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}${(libName.includes('https://')) ? libName : libLink}">${(type === 'js') ? '</script>' : ''}`);
+                    let toAdd = `<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}${(libName.includes('https://')) ? libName : libLink}">${(type === 'js') ? '</script>' : ''}`;
+
+                    if ($('#src').val().indexOf(toAdd) !== -1) return;
+                    if (index === lines.length) lines.push('');
+                    lines.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${toAdd}`);
+                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${libName} <button type="button" class="btn btn-circle btn-danger ml-auto noGlow" id="removeLib">-</button></li>`;
+                    libs.push(libName);
+                    localStorage.padscapeLibs = JSON.stringify(libs);
 
                     $('#src').val(lines.join('\n'));
                     defaultText = $('#src').val();
+                    editor.saveText();
+                    editor.saveText.save();
                     editor.highlight(defaultText);
                     editor.showResult();
                 }
@@ -541,15 +552,19 @@ let Editor = (() => {
                 (async () => {
                     let data = await getLib();
                     let type = data.filename.split('.').pop();
+                    let toReplace = `<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}https://cdnjs.cloudflare.com/ajax/libs/${data.name}/${data.version}/${data.filename}">${(type === 'js') ? '</script>' : ''}`;
 
-                    $('#src').val($('#src').val().replace(`<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}https://cdnjs.cloudflare.com/ajax/libs/${data.name}/${data.version}/${data.filename}">${(type === 'js') ? '</script>' : ''}`, ''));
+                    $('#src').val($('#src').val().replace(toReplace, ''));
                     defaultText = $('#src').val();
+                    editor.saveText();
+                    editor.saveText.save();
                     editor.highlight(defaultText);
                     editor.showResult();
                 })();
 
-                
                 $(this).parent().remove();
+                libs.splice(libs.indexOf(libName));
+                localStorage.padscapeLibs = JSON.stringify(libs);
             });
         }
     }
