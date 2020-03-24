@@ -73,7 +73,7 @@ let Editor = (() => {
                                                     <label class="custom-control-label" for="autosaveMode">Autosave Enabled</label>
                                                 </div>
                                                 <div class="row vertical-align" style="padding-top: 4px;">
-                                                    <div class="col-sm-6">
+                                                    <div class="col-6">
                                                         <select name="indent" class="custom-select" id="indentSize">
                                                             <option val="2spc">2 spaces</option>
                                                             <option val="4spc">4 spaces</option>
@@ -90,11 +90,12 @@ let Editor = (() => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>
+                                                <br><br>
+                                                <center><button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button></center>
                                             </div>
                                             <div class="container tab-pane" id="Libraries">
                                                 <div class="row" style="padding-top: 0;">
-                                                    <div class="col-sm-8">
+                                                    <div class="col-8">
                                                         <div class="dropdown">
                                                             <input type="text" class="form-control lib-dropdown" placeholder="Search libraries by name or paste URL" id="libName">
                                                             <div class="dropdown-menu scrollable-menu">
@@ -102,7 +103,7 @@ let Editor = (() => {
                                                         </div>
                                                         <ul id="libList" class="list-group list-group-flush"></ul>
                                                     </div>
-                                                    <div class="col-sm-4" style="padding-left: 0;">
+                                                    <div class="col-4" style="padding-left: 0;">
                                                         <button type="button" class="btn btn-circle btn-primary noGlow" id="addLib">+</button>
                                                     </div>
                                                 </div>
@@ -160,7 +161,7 @@ let Editor = (() => {
                 $('#save')[0].innerHTML += `${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`;
                 $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
 
-                if (creator !== username || !location.hash) $('#delete').remove();
+                //if (creator !== username || !location.hash) $('#delete').remove();
             })();
 
             $('#indentSize').val(`${indentSize} spaces`);
@@ -562,9 +563,10 @@ let Editor = (() => {
                     editor.showResult();
                 })();
 
-                $(this).parent().remove();
                 libs.splice(libs.indexOf(libName));
                 localStorage.padscapeLibs = JSON.stringify(libs);
+                $(this).parent().addClass('deleteLib');
+                setTimeout(() => { $(this).parent().remove(); }, 200);
             });
         }
     }
