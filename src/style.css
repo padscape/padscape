@@ -62,7 +62,6 @@ html, body, #page, .row {
     height: 100%;
     padding: 1.5rem;
     padding-left: 2rem;
-    padding-top: 2.5rem;
 }
 
 #resultCol {
@@ -126,8 +125,95 @@ html, body, #page, .row {
     animation: scaleFadeOut 0.2s linear;
 }
 
+#delete {
+    border-radius: 10rem;
+    padding: 10px 20px;
+}
+
 #delete:hover {
     animation: rotate 0.7s ease-in-out both;
+}
+
+#addLib, #deleteLib {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    transition: all 0.5s;
+    overflow: hidden;
+}
+  
+#addLib:hover, #deleteLib:hover {
+    display: block;
+    width: 100px;
+    height: 40px;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: all 0.5s;
+    overflow: hidden;
+}
+  
+.addLib-content, .deleteLib-content {
+    line-height: 40px;
+    color: #fff;
+    width: 140px;
+    position: relative;
+    transition: all 1s;
+    left: 140px;
+    height: 55px;
+}
+  
+.addLib-content:before, .deleteLib-content:before {
+    position: absolute;
+    right: 225px;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    color: #fff;
+}
+  
+#addLib:hover .addLib-content, #deleteLib:hover .deleteLib-content {
+    line-height: 40px;
+    color: #fff;
+    width: 100px;
+    transition: all 1s;
+    height: 40px;
+    border-radius: 8px;
+}
+
+.addLib-content:before {
+    content: '+';
+}
+
+.deleteLib-content:before {
+    content: '-';
+}
+
+#addLib {
+    background: #007bff;
+}
+
+#deleteLib {
+    background: #dc3545;
+}
+
+#addLib:hover {
+    background: #006de2;
+}
+
+#deleteLib:hover {
+    background: #c53140;
+}
+
+#addLib:hover .addLib-content {
+    left: 35px;
+    background-color: #006de2;
+}
+
+
+#deleteLib:hover .deleteLib-content {
+    left: 20px;
+    background-color: #c53140;
 }
 
 #page {
