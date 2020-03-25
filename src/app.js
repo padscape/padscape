@@ -25,7 +25,7 @@ let Editor = (() => {
                                         </ul>
                                         <ul class="navbar-nav ml-auto">
                                             <li class="nav-item">
-                                                <p class="navbar-text" style="color: white" id="info"></p>
+                                                <p class="navbar-text my-auto" style="color: white" id="info"></p>
                                             </li>
                                         </ul>
                                     </div>
@@ -90,8 +90,6 @@ let Editor = (() => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <br><br>
-                                                <center><button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button></center>
                                             </div>
                                             <div class="container tab-pane" id="Libraries">
                                                 <div class="row" style="padding-top: 0;">
@@ -104,7 +102,9 @@ let Editor = (() => {
                                                         <ul id="libList" class="list-group list-group-flush"></ul>
                                                     </div>
                                                     <div class="col-4" style="padding-left: 0;">
-                                                        <button type="button" class="btn btn-circle btn-primary noGlow" id="addLib">+</button>
+                                                        <div id="addLib">
+                                                            <div class="addLib-content">Add</div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <br>
@@ -161,7 +161,7 @@ let Editor = (() => {
                 $('#save')[0].innerHTML += `${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`;
                 $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
 
-                //if (creator !== username || !location.hash) $('#delete').remove();
+                if (creator === username && location.hash) $('#Editor').append(`<br><br><center><button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button></center>`);
             })();
 
             $('#indentSize').val(`${indentSize} spaces`);
@@ -451,7 +451,7 @@ let Editor = (() => {
                 $('#autosaveMode').prop('checked', autosave == "on");
 
                 libs.forEach(lib => {
-                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <button type="button" class="btn btn-circle btn-danger ml-auto noGlow" id="removeLib">-</button></li>`;
+                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
                 });
             });
 
@@ -529,7 +529,7 @@ let Editor = (() => {
                     if ($('#src').val().indexOf(toAdd) !== -1) return;
                     if (index === lines.length) lines.push('');
                     lines.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${toAdd}`);
-                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${libName} <button type="button" class="btn btn-circle btn-danger ml-auto noGlow" id="removeLib">-</button></li>`;
+                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${libName} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
                     libs.push(libName);
                     localStorage.padscapeLibs = JSON.stringify(libs);
 
@@ -542,8 +542,8 @@ let Editor = (() => {
                 }
             });
 
-            $('body').delegate('#removeLib', 'click', function(){
-                let libName = $(this).parent().text().slice(0, -2);
+            $('body').delegate('#deleteLib', 'click', function(){
+                let libName = $(this).parent().text().slice(0, -7);
 
                 const getLib = async () => {
                     let response = await fetch(`https://api.cdnjs.com/libraries/${libName}?fields=name,version,filename`);
