@@ -90,6 +90,10 @@ let Editor = (() => {
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <br><br>
+                                                <div class="text-center" id="export-delete">
+                                                    <button type="button" class="btn btn-primary noGlow" id="export" data-tooltip-text="1">Export&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>
+                                                </div>
                                             </div>
                                             <div class="container tab-pane" id="Libraries">
                                                 <div class="row" style="padding-top: 0;">
@@ -123,7 +127,7 @@ let Editor = (() => {
             realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
             autosave = (localStorage.padscapeAutosave != undefined) ? localStorage.padscapeAutosave : 'off';
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
-            libs = (localStorage.padscapeLibs != undefined && localStorage.padscapeLibs != "undefined") ? JSON.parse(localStorage.padscapeLibs) : [];
+            libs = (localStorage.padscapeLib != undefined && localStorage.padscapeLib != "undefined") ? JSON.parse(localStorage.padscapeLib) : {};
             theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'dark';
 
             Split(["#codeCol", "#resultCol"], {
@@ -158,10 +162,10 @@ let Editor = (() => {
                 username = data.ip;
                 if (!location.hash || editor.emptyResponse) creator = username;
 
-                $('#save')[0].innerHTML += `${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`;
+                $('#save').append(`${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`);
                 $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
 
-                if (creator === username && location.hash) $('#Editor').append(`<br><br><center><button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button></center>`);
+                if (creator === username && location.hash) $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`);
             })();
 
             $('#indentSize').val(`${indentSize} spaces`);
@@ -279,7 +283,12 @@ let Editor = (() => {
         },
 
         showResult: () => {
-            $('#result')[0].srcdoc = $('#src').val();
+            let src = '';
+
+            for (let lib in libs) if (libs.hasOwnProperty(lib)) src += libs[lib];
+            src += $('#src').val();
+
+            $('#result')[0].srcdoc = src;
         },
         
         renderOutput: () => {
@@ -450,9 +459,9 @@ let Editor = (() => {
                 $('#realtimeMode').prop('checked', realtime == "on");
                 $('#autosaveMode').prop('checked', autosave == "on");
 
-                libs.forEach(lib => {
-                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
-                });
+                for (let lib in libs) {
+                    if (libs.hasOwnProperty(lib)) $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
+                }
             });
 
             $('#resultShown').click(function() {
@@ -507,66 +516,56 @@ let Editor = (() => {
                 let libName = $('#libName').val();
 
                 if (libName !== '') {
-                    let index;
-                    let lines = $('#src').val().split('\n');
-
-                    index = lines.length;
-                    
-                    lines.some((line, indx) => {
-                        if (line.includes('</head>')) {
-                            index = indx;
-                            return true;
-                        } else if (line.includes('</body>') || line.includes('</html>')) {
-                            index = indx;
-                        }
-                    });
-
-                    let targetLine = lines[index];
-                    let indent = targetLine.match(/^\s*/)[0];
                     let type = libLink.split('.').pop();
                     let toAdd = `<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}${(libName.includes('https://')) ? libName : libLink}">${(type === 'js') ? '</script>' : ''}`;
-
-                    if ($('#src').val().indexOf(toAdd) !== -1) return;
-                    if (index === lines.length) lines.push('');
-                    lines.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${toAdd}`);
-                    $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${libName} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
-                    libs.push(libName);
-                    localStorage.padscapeLibs = JSON.stringify(libs);
-
-                    $('#src').val(lines.join('\n'));
-                    defaultText = $('#src').val();
-                    editor.saveText();
-                    editor.saveText.save();
-                    editor.highlight(defaultText);
-                    editor.showResult();
+                    $('#libList').append(`<li class="list-group-item d-flex align-items-center">${libName} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`);
+                    libs[libName] = toAdd;
+                    localStorage.padscapeLib = JSON.stringify(libs);
                 }
             });
 
             $('body').delegate('#deleteLib', 'click', function(){
                 let libName = $(this).parent().text().slice(0, -7);
-
-                const getLib = async () => {
-                    let response = await fetch(`https://api.cdnjs.com/libraries/${libName}?fields=name,version,filename`);
-                    return await response.json();
-                }
-
-                (async () => {
-                    let data = await getLib();
-                    let type = data.filename.split('.').pop();
-                    let toReplace = `<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}https://cdnjs.cloudflare.com/ajax/libs/${data.name}/${data.version}/${data.filename}">${(type === 'js') ? '</script>' : ''}`;
-
-                    $('#src').val($('#src').val().replace(toReplace, ''));
-                    defaultText = $('#src').val();
-                    editor.saveText();
-                    editor.saveText.save();
-                    editor.highlight(defaultText);
-                    editor.showResult();
-                })();
-
-                libs.splice(libs.indexOf(libName));
-                localStorage.padscapeLibs = JSON.stringify(libs);
+                delete libs[libName];
+                localStorage.padscapeLib = JSON.stringify(libs);
                 $(this).parent().addClass('deleteLib');
                 setTimeout(() => { $(this).parent().remove(); }, 200);
+            });
+
+            $('#export').tooltip({
+                trigger: 'click',
+                placement: 'bottom'
+            });
+
+            $('#export').on('click', function() {
+                let index;
+                let src = $('#src').val().split('\n');
+
+                index = src.length;
+                    
+                src.some((line, indx) => {
+                    if (line.includes('</head>')) {
+                        index = indx;
+                        return true;
+                    } else if (line.includes('</body>') || line.includes('</html>')) {
+                        index = indx;
+                    }
+                });
+
+                let targetLine = src[index];
+                let indent = targetLine.match(/^\s*/)[0];
+                if (index === src.length) lines.push('');
+
+                for (let lib in libs) {
+                    if (libs.hasOwnProperty(lib)) src.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${libs[lib]}`);
+                }
+
+                let copy = $('<textarea>').val(src.join('\n')).appendTo('body').select();
+                document.execCommand('copy');
+                copy.remove();
+
+                $(this).tooltip('hide').attr('data-original-title', 'Copied').tooltip('show');
+                setTimeout(() => { $(this).tooltip('hide'); }, 1000);
             });
         }
     }
