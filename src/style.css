@@ -125,12 +125,12 @@ html, body, #page, .row {
     animation: scaleFadeOut 0.2s linear;
 }
 
-#delete {
+#delete, #export {
     border-radius: 10rem;
     padding: 10px 20px;
 }
 
-#delete:hover {
+#delete:hover, #export:hover {
     animation: rotate 0.7s ease-in-out both;
 }
 
