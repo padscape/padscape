@@ -5,7 +5,10 @@ let Editor = (() => {
         init: function() {
             editor = this;
 
-            let content = ` <div id="loader"></div>
+            let content = ` <div id="load">
+                                <img src="https://avatars2.githubusercontent.com/u/51507573?s=400&u=7b0c73685f03e22579236e0ef69ac1c84ef2c530&v=4" width="260px" height="260px"></img>
+                                <div id="loader"></div>
+                            </div>
                             <div id="page">
                                 <nav class="navbar navbar-expand-sm fixed-top vertical-align">
                                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
@@ -181,7 +184,7 @@ let Editor = (() => {
             editor.sizeButtons();
 
             window.onload = () => {
-                $('#loader').css('visibility', 'hidden');
+                $('#load').css('visibility', 'hidden');
                 $('#page').css({'visibility': 'visible', 'opacity': '1'});
             };
         },
