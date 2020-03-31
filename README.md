@@ -25,6 +25,9 @@ Current features:
 - [Split.js](https://split.js.org/) - Utility for resizeable split panes
 - [Prism.js](https://prismjs.com/) - Syntax highlighting library
 
+- BonfireScratch
+  - Project Moderator
+
 ## Useful resources
 - [Contributing Guidelines](https://github.com/padscape/padscape/blob/master/CONTRIBUTING.md)
 - [Issues](https://github.com/padscape/padscape/issues)
