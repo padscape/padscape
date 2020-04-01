@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, editor;
+let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, hasSaved, editor;
 
 let Editor = (() => {
     return {
@@ -132,6 +132,7 @@ let Editor = (() => {
             resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
             libs = (localStorage.padscapeLib != undefined && localStorage.padscapeLib != "undefined") ? JSON.parse(localStorage.padscapeLib) : {};
             theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'dark';
+            hasSaved = false;
 
             Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
@@ -150,9 +151,6 @@ let Editor = (() => {
 
             if (location.hash) {
                 getPadContents();
-                defaultText = $('#src').val();
-                editor.highlight(defaultText);
-                editor.showResult();
             } else {
                 defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
                 $('#src').val(defaultText);
@@ -191,31 +189,38 @@ let Editor = (() => {
 
         saveText: () => {
             $('#save').click(function() {
-                save();
+                hasSaved = true;
+
+                if (creator === username) {
+                    saveToDatabase();
+                } else {
+                    forkCode();
+                }
             });
 
             $('#src').on('keyup keydown', function() {
-                if (autosave) save();
+                if (autosave) {
+                    hasSaved = true;
+
+                    if (!location.hash) {
+                        localStorage.defaultText = $('#src').val();
+                    } else if (creator === username) {
+                        saveToDatabase();
+                    }
+                }
             });
 
             $(document).on('keydown', function(e) {
                 if (e.ctrlKey && e.keyCode === 83) {
                     e.preventDefault();
-                    save();
+
+                    if (!location.hash) {
+                        localStorage.defaultText = $('#src').val();
+                    } else if (creator === username) {
+                        saveToDatabase();
+                    }
                 }
             });
-
-            save = () => {
-                if (!location.hash) {
-                    localStorage.defaultText = $('#src').val();
-                } else if (creator === username) {
-                    saveToDatabase();
-                } else {
-                    forkCode();
-                }
-            }
-
-            editor.saveText.save = save;
         },
         
         getInput: () => {
@@ -395,7 +400,7 @@ let Editor = (() => {
                 $('#src').focus();
             });
 
-            $('#delete').click(function() {
+            $('body').delegate('#delete', 'click', function() {
                 deleteCode();
             });
 
