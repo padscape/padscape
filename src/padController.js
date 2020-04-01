@@ -5,11 +5,14 @@ getPadContents = () => {
     }
 
     (async () => {
-        let data = await getData(location.hash.substring(1));
-        let json = (data !== '[]') ? JSON.parse(data.slice(1, -1)) : undefined;
+        let data = await getData(window.location.hash.substring(1));
+        let json = (data !== '[]') ? data[0] : undefined;
 
         if (json) {
             $('#src').val(json.Code);
+            defaultText = json.Code;
+            editor.highlight(defaultText);
+            editor.showResult();
             creator = json.Creator;
             editor.emptyResponse = false;
         } else {
@@ -19,51 +22,45 @@ getPadContents = () => {
 }
 
 saveToDatabase = () => {
-    const getData = async () => {
-        let response = await fetch(`http://kouritis.ddns.net:5520/code`);
-        return await response.json();
-    }
+    const http = new XMLHttpRequest();
+    let type = ((editor.emptyResponse && !hasSaved) || !location.hash) ? "POST" : "PUT";
+    let text = $("#src").val().replace(/"/g, "'");
 
-    (async () => {
-        const http = new XMLHttpRequest();
-        let data = await getData();
-        let type = (editor.emptyResponse || !location.hash) ? "POST" : "PUT";
-        let id = (location.hash) ? location.hash.substring(1) : Number(JSON.parse(data.slice(1, -1).split(',').pop()).CodeID) + 1;
+    http.open(type, `http://kouritis.ddns.net:5520/code/${(type === "PUT") ? window.location.hash.substring(1) : ""}`, true);
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http.send(`Code=${(text !== "") ? text : ' '}&Creator=${username}`);
 
-        http.open(type, `http://kouritis.ddns.net:5520/code/${id}`, true);
-        http.send(JSON.stringify({"CodeID": id, "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": creator}));
-
-        if (!location.hash) {
-            location.href = `${location.href.split('#')[0]}#${id}`;
-            location.reload();
+    if (!location.hash) {
+        http.onreadystatechange = () => {
+            if (http.readyState == 4 && http.status == 200) {
+                location.href = `${location.href.split('#')[0]}#${JSON.parse(http.responseText)['id']}`;
+                location.reload();
+            }
         }
-    })();
+    }
 }
 
 forkCode = () => {
-    const getData = async () => {
-        let response = await fetch(`http://kouritis.ddns.net:5520/code`);
-        return await response.json();
+    const http = new XMLHttpRequest();
+
+    http.open("POST", `http://kouritis.ddns.net:5520/code/`, true);
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http.send(`Code=${$("#src").val().replace(/"/g, "'")}&Creator=${username}`);
+
+    http.onreadystatechange = () => {
+        if (http.readyState == 4 && http.status == 200) {
+            location.href = `${location.href.split('#')[0]}#${JSON.parse(http.responseText)['id']}`;
+            location.reload();
+        }
     }
-
-    (async () => {
-        const http = new XMLHttpRequest();
-        let data = await getData();
-        let newId = Number(JSON.parse(data.slice(1, -1).split(',').pop()).CodeID) + 1;
-
-        http.open("POST", `http://kouritis.ddns.net:5520/code/${newId}`, true);
-        http.send(JSON.stringify({"CodeID": newId, "Code": $("#src").val().replace(/'/g, "\\'"), "Creator": username}));
-
-        location.href = `${location.href.split('#')[0]}#${newId}`;
-        location.reload();
-    })();
 }
 
 deleteCode = () => {
     const http = new XMLHttpRequest();
 
-    http.open("DELETE", `http://kouritis.ddns.net:5520/code/${location.hash.substring(1)}`, true);
+    http.open("DELETE", `http://kouritis.ddns.net:5520/code/${window.location.hash.substring(1)}`, true);
     http.send();
 
-    location.href = location.href.split('#')[0];
+    location.hash = '';
+    location.reload();
 }
