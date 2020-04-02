@@ -1,6 +1,6 @@
 getPadContents = () => {
     const getData = async id => {
-        let response = await fetch(`http://kouritis.ddns.net:5520/code/${id}`);
+        let response = await fetch(`https://kouritis.ddns.net/code/${id}`);
         return await response.json();
     }
 
@@ -26,7 +26,7 @@ saveToDatabase = () => {
     let type = ((editor.emptyResponse && !hasSaved) || !location.hash) ? "POST" : "PUT";
     let text = $("#src").val().replace(/"/g, "'");
 
-    http.open(type, `http://kouritis.ddns.net:5520/code/${(type === "PUT") ? window.location.hash.substring(1) : ""}`, true);
+    http.open(type, `https://kouritis.ddns.net/code/${(type === "PUT") ? window.location.hash.substring(1) : ""}`, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.send(`Code=${(text !== "") ? text : ' '}&Creator=${username}`);
 
@@ -43,7 +43,7 @@ saveToDatabase = () => {
 forkCode = () => {
     const http = new XMLHttpRequest();
 
-    http.open("POST", `http://kouritis.ddns.net:5520/code/`, true);
+    http.open("POST", `https://kouritis.ddns.net/code/`, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.send(`Code=${$("#src").val().replace(/"/g, "'")}&Creator=${username}`);
 
@@ -58,7 +58,7 @@ forkCode = () => {
 deleteCode = () => {
     const http = new XMLHttpRequest();
 
-    http.open("DELETE", `http://kouritis.ddns.net:5520/code/${window.location.hash.substring(1)}`, true);
+    http.open("DELETE", `https://kouritis.ddns.net/code/${window.location.hash.substring(1)}`, true);
     http.send();
 
     location.hash = '';
