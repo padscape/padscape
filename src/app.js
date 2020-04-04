@@ -125,14 +125,20 @@ let Editor = (() => {
 
             $("body").append(content);
 
-            textSize = (typeof localStorage.padscapeTextSize == Number) ? localStorage.padscapeTextSize : 19;
-            indentSize = (typeof localStorage.padscapeIndentSize == Number) ? localStorage.padscapeIndentSize : 4;
-            realtime = (localStorage.padscapeRealtime != undefined) ? localStorage.padscapeRealtime : 'on';
-            autosave = (localStorage.padscapeAutosave != undefined) ? localStorage.padscapeAutosave : 'off';
-            resultShown = (localStorage.padscapeResultShown != undefined) ? localStorage.padscapeResultShown : true;
-            libs = (localStorage.padscapeLib != undefined && localStorage.padscapeLib != "undefined") ? JSON.parse(localStorage.padscapeLib) : {};
-            theme = (localStorage.padscapeTheme) ? localStorage.padscapeTheme : 'dark';
+            isDefined = variable => {
+                return variable != undefined && variable != "undefined";
+            }
+
+            textSize = (isDefined(localStorage.padscapeTextSize)) ? localStorage.padscapeTextSize : 19;
+            indentSize = (isDefined(localStorage.padscapeIndentSize)) ? localStorage.padscapeIndentSize : 4;
+            realtime = (isDefined(localStorage.padscapeRealtime)) ? localStorage.padscapeRealtime : 'on';
+            autosave = (isDefined(localStorage.padscapeAutosave)) ? localStorage.padscapeAutosave : 'off';
+            resultShown = (isDefined(localStorage.padscapeResultShown)) ? localStorage.padscapeResultShown : true;
+            libs = (isDefined(localStorage.padscapeLib)) ? JSON.parse(localStorage.padscapeLib) : {};
+            theme = (isDefined(localStorage.padscapeTheme)) ? localStorage.padscapeTheme : 'dark';
             hasSaved = false;
+
+            $(':root').css('--indent-size', indentSize);
 
             Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
@@ -188,7 +194,7 @@ let Editor = (() => {
         },
 
         saveText: () => {
-            $('#save').click(function() {
+            $('#save').click(() => {
                 hasSaved = true;
 
                 if (creator === username) {
@@ -198,7 +204,7 @@ let Editor = (() => {
                 }
             });
 
-            $('#src').on('keyup keydown', function() {
+            $('#src').on('keyup keydown', () => {
                 if (autosave) {
                     hasSaved = true;
 
@@ -210,7 +216,7 @@ let Editor = (() => {
                 }
             });
 
-            $(document).on('keydown', function(e) {
+            $(document).on('keydown', e => {
                 if (e.ctrlKey && e.keyCode === 83) {
                     e.preventDefault();
 
@@ -224,7 +230,7 @@ let Editor = (() => {
         },
         
         getInput: () => {
-            $('#src').on('keydown', function(e) {
+            $('#src').on('keydown', e => {
                 let keyCode = e.keyCode || e.which;
 
                 if (keyCode === 9) {
@@ -267,23 +273,23 @@ let Editor = (() => {
         },
         
         runCode: () => {
-            $('#src').on('keyup', function() {
+            $('#src').on('keyup', () => {
                 if (realtime == "on") {
                     editor.showResult();
                 }
             });
 
-            $('#run').click(function() {
+            $('#run').click(() => {
                 editor.showResult();
             });
 
-            $('#realtimeMode').click(function() {
+            $('#realtimeMode').click(() => {
                 if ($(this).is(":checked")) {
                     editor.showResult();
                 }
             });
 
-            $(document).on("keyup keydown", function(e) {
+            $(document).on("keyup keydown", e => {
                 if (e.altKey && e.keyCode === 82) {
                     editor.showResult();
                 }
@@ -302,7 +308,7 @@ let Editor = (() => {
         renderOutput: () => {
             var old_value = "";
 
-            $('#src').on('input keydown', function() {
+            $('#src').on('input keydown', () => {
                 var value = this.value;
                 if (value == old_value) return;
                 old_value = value;
@@ -321,14 +327,14 @@ let Editor = (() => {
         },
         
         listenerForScroll: () => {
-            $('#src').on('scroll', function() {
+            $('#src').on('scroll', () => {
                 $('.code-output')[0].scrollTop = this.scrollTop;
                 $('.code-output')[0].scrollLeft = this.scrollLeft;
             });
         },
 
         sizeButtons: () => {
-            $('.size-plus-btn').click(function() {
+            $('.size-plus-btn').click(() => {
                 var current = Number($(':root').css('--text-size').slice(0, -2));
 
                 if (current < 55) {
@@ -339,7 +345,7 @@ let Editor = (() => {
                 localStorage.padscapeTextSize = textSize;
             });
 
-            $('.size-minus-btn').click(function() {
+            $('.size-minus-btn').click(() => {
                 var current = Number($(':root').css('--text-size').slice(0, -2));
 
                 if (current > 1) {
@@ -350,15 +356,15 @@ let Editor = (() => {
                 localStorage.padscapeTextSize = textSize;
             });
 
-            $(document).ready(function() {
+            $(document).ready(() => {
                 $(':root').css('--text-size', `${textSize}px`);
             });
 
-            $('.size-plus-btn, .size-minus-btn').mouseover(function() {
+            $('.size-plus-btn, .size-minus-btn').mouseover(() => {
                 $('.size-plus-btn, .size-minus-btn').animate({opacity: '1'});
             });
 
-            $('.size-plus-btn, .size-minus-btn').mouseleave(function(e) {
+            $('.size-plus-btn, .size-minus-btn').mouseleave(e => {
                 var plusX = Number($('.size-plus-btn').css('left').slice(0, -2));
                 var minusX = Number($('.size-minus-btn').css('left').slice(0, -2));
 
@@ -369,12 +375,12 @@ let Editor = (() => {
                 }
             }); 
 
-            $(document).on('scroll', function() {
+            $(document).on('scroll', () => {
                 $('.size-plus-btn, .size-minus-btn').css('bottom', `${$(window).scrollTop() + 26}px`);
             });
 
-            let observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function() {
+            let observer = new MutationObserver(mutations => {
+                mutations.forEach(() => {
                     let position = $('#codeCol').css('flex-basis').slice(5, -1);
                     $('.size-plus-btn').css('left', `calc(${position} - 55px)`);
                     $('.size-minus-btn').css('left', `calc(${position} - 104px)`);
@@ -387,20 +393,31 @@ let Editor = (() => {
         },
 
         modal: () => {
-            $(document).on("keyup keydown", function(e) {
+            let selectionS, selectionE;
+
+            $(document).on("keyup keydown", e => {
                 if (e.ctrlKey && e.keyCode === 73) {
                     e.preventDefault();
                     $("#settingsModal").modal('toggle');
-                    $('#src').focus();
                 }
             });
 
-            $('#settings').click(function() {
-                $("#settingsModal").modal('toggle');
+            $("#settingsModal").on('show.bs.modal', function () {
+                selectionS = $('#src')[0].selectionStart;
+                selectionE = $('#src')[0].selectionEnd;
+            });
+
+            $("#settingsModal").on('hidden.bs.modal', () => {
+                $('#src')[0].selectionStart = selectionS;
+                $('#src')[0].selectionEnd = selectionE;
                 $('#src').focus();
             });
 
-            $('body').delegate('#delete', 'click', function() {
+            $('#settings').click(() => {
+                $("#settingsModal").modal('toggle');
+            });
+
+            $('body').delegate('#delete', 'click', () => {
                 deleteCode();
             });
 
@@ -431,15 +448,12 @@ let Editor = (() => {
             });
 
             $('#indentSize').on('change', function() {
-                $('#src').blur();
-
                 var indentSize = Number(this.value.slice(0, -7));
                 $(':root').css('--indent-size', indentSize);
                 localStorage.padscapeIndentSize = indentSize;
-                $('#src').focus();
             });
 
-            $(document).ready(function() {
+            $(document).ready(() => {
                 if (localStorage.padscapeTheme == "dark") {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
@@ -464,18 +478,18 @@ let Editor = (() => {
                 $(':root').css('--indent-size', indentSize);
                 $('#indentSize').val(`${indentSize} spaces`);
                 $('#resultShown').prop('checked', resultShown);
-                $('#realtimeMode').prop('checked', realtime == "on");
-                $('#autosaveMode').prop('checked', autosave == "on");
+                $('#realtimeMode').prop('checked', realtime == 'on');
+                $('#autosaveMode').prop('checked', autosave == 'on');
 
                 for (let lib in libs) {
                     if (libs.hasOwnProperty(lib)) $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
                 }
             });
 
-            $('#resultShown').click(function() {
+            $('#resultShown').click(() => {
                 resultShown = $('#resultShown').prop('checked');
                 $('#resultCol').css('display', (resultShown) ? 'block' : 'none');
-                localStorage.resultShown = resultShown;
+                localStorage.padscapeResultShown = resultShown;
             });
 
             $('.nav-tabs a').click(function() {
@@ -520,7 +534,7 @@ let Editor = (() => {
                 })();
             });
 
-            $('#addLib').on('click', function() {
+            $('#addLib').on('click', () => {
                 let libName = $('#libName').val();
 
                 if (libName !== '') {
@@ -532,7 +546,7 @@ let Editor = (() => {
                 }
             });
 
-            $('body').delegate('#deleteLib', 'click', function(){
+            $('body').delegate('#deleteLib', 'click', function() {
                 let libName = $(this).parent().text().slice(0, -7);
                 delete libs[libName];
                 localStorage.padscapeLib = JSON.stringify(libs);
