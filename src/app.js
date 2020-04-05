@@ -290,7 +290,6 @@ let Editor = (() => {
             });
 
             $(document).on("keyup keydown", e => {
-                console.log(e.keyCode);
                 if (e.altKey && e.keyCode === 82) {
                     editor.showResult();
                 }
