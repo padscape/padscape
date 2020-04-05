@@ -290,6 +290,7 @@ let Editor = (() => {
             });
 
             $(document).on("keyup keydown", e => {
+                console.log(e.keyCode);
                 if (e.altKey && e.keyCode === 82) {
                     editor.showResult();
                 }
@@ -308,8 +309,8 @@ let Editor = (() => {
         renderOutput: () => {
             var old_value = "";
 
-            $('#src').on('input keydown', () => {
-                var value = this.value;
+            $('#src').on('input keydown', function() {
+                let value = $(this).val();
                 if (value == old_value) return;
                 old_value = value;
                 editor.highlight(value);
