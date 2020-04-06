@@ -151,13 +151,16 @@ let Editor = (() => {
             });
 
             const getUsername = async () => {
-                let response = await fetch('https://api.ipify.org?format=json');
+                let response = await fetch('https://api.ipify.org/?format=json');
                 return await response.json();
             }
 
             (async () => {
                 getPadContents();
                 let data = await getUsername();
+
+                $('#src').val(defaultText);
+                editor.highlight(defaultText);
                 username = data['ip'];
                 if (!location.hash || editor.emptyResponse) creator = username;
 
@@ -222,7 +225,7 @@ let Editor = (() => {
         },
         
         getInput: () => {
-            $('#src').on('keydown', e => {
+            $('#src').on('keydown', function(e) {
                 let keyCode = e.keyCode || e.which;
 
                 if (keyCode === 9) {
