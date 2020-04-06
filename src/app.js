@@ -155,18 +155,10 @@ let Editor = (() => {
                 return await response.json();
             }
 
-            if (location.hash) {
-                getPadContents();
-            } else {
-                defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
-                $('#src').val(defaultText);
-                editor.highlight(defaultText);
-                editor.showResult();
-            }
-
             (async () => {
+                getPadContents();
                 let data = await getUsername();
-                username = data.ip;
+                username = data['ip'];
                 if (!location.hash || editor.emptyResponse) creator = username;
 
                 $('#save').append(`${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`);
