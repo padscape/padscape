@@ -7,24 +7,20 @@ getPadContents = () => {
     (async () => {
         if (!location.hash) {
             defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
-            $('#src').val(defaultText);
-            editor.highlight(defaultText);
-            editor.showResult();
-            return;
-        }
-
-        let data = await getData(window.location.hash.substring(1));
-        let json = (data !== '[]') ? data[0] : undefined;
-
-        if (json) {
-            $('#src').val(json['Code']);
-            defaultText = json['Code'];
-            creator = json['Creator'];
-            editor.highlight(defaultText);
-            editor.showResult();
-            editor.emptyResponse = false;
         } else {
-            editor.emptyResponse = true;
+            let data = await getData(window.location.hash.substring(1));
+            let json = (data !== '[]') ? data[0] : undefined;
+
+            if (json) {
+                $('#src').val(json['Code']);
+                defaultText = json['Code'];
+                creator = json['Creator'];
+                editor.highlight(defaultText);
+                editor.showResult();
+                editor.emptyResponse = false;
+            } else {
+                editor.emptyResponse = true;
+            }
         }
     })();
 }
@@ -32,7 +28,7 @@ getPadContents = () => {
 saveToDatabase = () => {
     const http = new XMLHttpRequest();
     let type = ((editor.emptyResponse && !hasSaved) || !location.hash) ? "POST" : "PUT";
-    let text = $("#src").val().replace(/"/g, "'");
+    let text = $("#src").val().replace(/"/g, '\\"');
 
     http.open(type, `https://kouritis.ddns.net/code/${(type === "PUT") ? window.location.hash.substring(1) : ""}`, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
