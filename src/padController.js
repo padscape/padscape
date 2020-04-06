@@ -5,15 +5,23 @@ getPadContents = () => {
     }
 
     (async () => {
+        if (!location.hash) {
+            defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+            $('#src').val(defaultText);
+            editor.highlight(defaultText);
+            editor.showResult();
+            return;
+        }
+
         let data = await getData(window.location.hash.substring(1));
         let json = (data !== '[]') ? data[0] : undefined;
 
         if (json) {
-            $('#src').val(json.Code);
-            defaultText = json.Code;
+            $('#src').val(json['Code']);
+            defaultText = json['Code'];
+            creator = json['Creator'];
             editor.highlight(defaultText);
             editor.showResult();
-            creator = json.Creator;
             editor.emptyResponse = false;
         } else {
             editor.emptyResponse = true;
