@@ -95,7 +95,7 @@ let Editor = (() => {
                                                 </div>
                                                 <br><br>
                                                 <div class="text-center" id="export-delete">
-                                                    <button type="button" class="btn btn-primary noGlow" id="export" data-tooltip-text="1">Export&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>
+                                                    <button type="button" class="btn btn-primary noGlow" id="export" data-tooltip-text="1">Export&nbsp;&nbsp;&nbsp;<i class='fas fa-file-export'></i></button>
                                                 </div>
                                             </div>
                                             <div class="container tab-pane" id="Libraries">
