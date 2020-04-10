@@ -20,7 +20,7 @@ let Editor = (() => {
                                                 <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
                                             </li>
                                             <li class="nav-item">
-                                                <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S"></button>
+                                                <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S">Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i></button>
                                             </li>
                                             <li class="nav-item">
                                                 <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
@@ -164,6 +164,8 @@ let Editor = (() => {
 
             if (!location.hash) {
                 defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+                $('#src').val(defaultText);
+                editor.highlight($('#src').val());
             } else {
                 getPadContents(window.location.hash.substring(1)).then(getUsername).then(data => {
                     if (data['pad']) {
@@ -179,7 +181,8 @@ let Editor = (() => {
 
                     username = data['ip']['ip'];
                     if (!location.hash || editor.emptyResponse) creator = username;
-                    $('#save').append(`${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`);
+
+                    if (creator === username) $('#save')[0].innerHTML = `"Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"`;
                     $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
 
                     if (creator === username && location.hash) $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`);
