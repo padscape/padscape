@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, hasSaved, editor;
+let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, hasSaved;
 
 let Editor = (() => {
     return {
@@ -150,28 +150,46 @@ let Editor = (() => {
                 cursor: 'col-resize'
             });
 
-            const getUsername = async () => {
-                let response = await fetch('https://api.ipify.org/?format=json');
-                return await response.json();
+            getUsername = pad => {
+                return new Promise((resolve, reject) => {
+                    $.getJSON({
+                        url: 'https://api.ipify.org/?format=json',
+                        success(ip) {
+                            resolve({pad, ip: ip});
+                        },
+                        error: reject
+                    });
+                });
             }
 
-            (async () => {
-                getPadContents();
-                let data = await getUsername();
+            if (!location.hash) {
+                defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+            } else {
+                getPadContents(window.location.hash.substring(1)).then(getUsername).then(data => {
+                    if (data['pad']) {
+                        $('#src').val(data['pad']['Code']);
+                        defaultText = data['pad']['Code'];
+                        creator = data['pad']['Creator'];
+                        editor.highlight(defaultText);
+                        editor.showResult();
+                        editor.emptyResponse = false;
+                    } else {
+                        editor.emptyResponse = true;
+                    }
 
-                $('#src').val(defaultText);
-                editor.highlight(defaultText);
-                username = data['ip'];
-                if (!location.hash || editor.emptyResponse) creator = username;
+                    username = data['ip']['ip'];
+                    if (!location.hash || editor.emptyResponse) creator = username;
+                    $('#save').append(`${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`);
+                    $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
 
-                $('#save').append(`${(creator === username) ? "Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i>" : "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"}`);
-                $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
+                    if (creator === username && location.hash) $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`);
+                    $('#src').val(defaultText);
+                    editor.highlight($('#src').val());
 
-                if (creator === username && location.hash) $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`);
-            })();
-
-            $('#indentSize').val(`${indentSize} spaces`);
-            $('[data-toggle="tooltip"]').tooltip();
+                    $('#indentSize').val(`${indentSize} spaces`);
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+            }
 
             editor.listenLanguage('html');
             editor.getInput();
