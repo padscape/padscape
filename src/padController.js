@@ -1,28 +1,11 @@
-getPadContents = () => {
-    const getData = async id => {
-        let response = await fetch(`https://kouritis.ddns.net/code/${id}`);
-        return await response.json();
-    }
-
-    (async () => {
-        if (!location.hash) {
-            defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
-        } else {
-            let data = await getData(window.location.hash.substring(1));
-            let json = (data !== '[]') ? data[0] : undefined;
-
-            if (json) {
-                $('#src').val(json['Code']);
-                defaultText = json['Code'];
-                creator = json['Creator'];
-                editor.highlight(defaultText);
-                editor.showResult();
-                editor.emptyResponse = false;
-            } else {
-                editor.emptyResponse = true;
-            }
-        }
-    })();
+getPadContents = id => {
+    return new Promise((resolve, reject) => {
+        $.getJSON({
+            url: `https://kouritis.ddns.net/code/${id}`,
+            success: resolve,
+            error: reject
+        });
+    });
 }
 
 saveToDatabase = () => {
