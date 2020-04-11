@@ -182,7 +182,7 @@ let Editor = (() => {
                     username = data['ip']['ip'];
                     if (!location.hash || editor.emptyResponse) creator = username;
 
-                    if (creator === username) $('#save')[0].innerHTML = `"Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"`;
+                    if (creator !== username) $('#save')[0].innerHTML = "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>";
                     $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
 
                     if (creator === username && location.hash) $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`);
@@ -343,7 +343,7 @@ let Editor = (() => {
         },
         
         listenerForScroll: () => {
-            $('#src').on('scroll', () => {
+            $('#src').on('scroll', function() {
                 $('.code-output')[0].scrollTop = this.scrollTop;
                 $('.code-output')[0].scrollLeft = this.scrollLeft;
             });
