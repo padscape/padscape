@@ -34,7 +34,6 @@ forkCode = () => {
         data: `Code=${$("#src").val().replace(/"/g, "'")}&Creator=${username}`,
         contentType: 'application/x-www-form-urlencoded',
         success: data => {
-            console.log(data['id'])
             location.href = `${location.href.split('#')[0]}#${data['id']}`;
             location.reload();
         }
