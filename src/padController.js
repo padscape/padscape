@@ -6,7 +6,7 @@ getPadContents = id => {
             error: reject
         });
     });
-}
+};
 
 saveToDatabase = () => {
     let requestType = ((editor.emptyResponse && !hasSaved) || !location.hash) ? "post" : "put";
@@ -25,7 +25,7 @@ saveToDatabase = () => {
             }
         }
     });
-}
+};
 
 forkCode = () => {
     $.ajax({
@@ -38,7 +38,7 @@ forkCode = () => {
             location.reload();
         }
     });
-}
+};
 
 deleteCode = () => {
     $.ajax({
