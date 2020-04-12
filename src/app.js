@@ -2,7 +2,7 @@ let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, s
 
 let Editor = (() => {
     return {
-        init: function() {
+        init() {
             editor = this;
 
             let content = ` <div id="load">
@@ -126,7 +126,7 @@ let Editor = (() => {
             $("body").append(content);
 
             isDefined = variable => {
-                return variable != undefined && variable != "undefined";
+                return variable !== undefined && variable !== "undefined";
             }
 
             textSize = (isDefined(localStorage.padscapeTextSize)) ? localStorage.padscapeTextSize : 19;
@@ -134,7 +134,6 @@ let Editor = (() => {
             realtime = (isDefined(localStorage.padscapeRealtime)) ? localStorage.padscapeRealtime : 'on';
             autosave = (isDefined(localStorage.padscapeAutosave)) ? localStorage.padscapeAutosave : 'off';
             resultShown = (isDefined(localStorage.padscapeResultShown)) ? localStorage.padscapeResultShown : true;
-            libs = (isDefined(localStorage.padscapeLib)) ? JSON.parse(localStorage.padscapeLib) : {};
             theme = (isDefined(localStorage.padscapeTheme)) ? localStorage.padscapeTheme : 'dark';
             hasSaved = false;
 
@@ -142,7 +141,7 @@ let Editor = (() => {
 
             Split(["#codeCol", "#resultCol"], {
                 elementStyle: (dimension, size, gutterSize) => { 
-                    return {'flex-basis': `calc(${size}% - ${gutterSize}px)`}
+                    return {'flex-basis': `calc(${size}% - ${gutterSize}px)`};
                 },
 
                 sizes: [50, 50],
@@ -164,8 +163,10 @@ let Editor = (() => {
 
             if (!location.hash) {
                 defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+                libs = (isDefined(localStorage.padscapeLib)) ? JSON.parse(localStorage.padscapeLib) : {};
                 $('#src').val(defaultText);
-                editor.highlight($('#src').val());
+                editor.highlight(defaultText);
+                editor.showResult();
             } else {
                 getPadContents(window.location.hash.substring(1)).then(getUsername).then(data => {
                     if (data['pad']) {
@@ -180,12 +181,12 @@ let Editor = (() => {
                     }
 
                     username = data['ip']['ip'];
-                    if (!location.hash || editor.emptyResponse) creator = username;
+                    if (!location.hash || editor.emptyResponse) { creator = username; }
 
-                    if (creator !== username) $('#save')[0].innerHTML = "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>";
+                    if (creator !== username) { $('#save')[0].innerHTML = "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"; }
+                    if (creator === username && location.hash) { $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`); }
+
                     $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
-
-                    if (creator === username && location.hash) $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`);
                     $('#src').val(defaultText);
                     editor.highlight($('#src').val());
 
@@ -209,7 +210,7 @@ let Editor = (() => {
             };
         },
 
-        saveText: () => {
+        saveText() {
             $('#save').click(() => {
                 hasSaved = true;
 
@@ -245,7 +246,7 @@ let Editor = (() => {
             });
         },
         
-        getInput: () => {
+        getInput() {
             $('#src').on('keydown', function(e) {
                 let keyCode = e.keyCode || e.which;
 
@@ -261,7 +262,7 @@ let Editor = (() => {
                         for (let i = 0; i < lines.length; i++) {
                             line = `\t${lines[i]}`;
                             text += line;
-                            if (i < lines.length - 1) text += '\n';
+                            if (i < lines.length - 1) { text += '\n'; }
                         }
 
                         $(this).val(`${this.value.substring(0, start)}${text}${this.value.substring(end)}`);
@@ -288,9 +289,9 @@ let Editor = (() => {
             });
         },
         
-        runCode: () => {
+        runCode() {
             $('#src').on('keyup', () => {
-                if (realtime == "on") {
+                if (realtime === "on") {
                     editor.showResult();
                 }
             });
@@ -312,44 +313,44 @@ let Editor = (() => {
             });
         },
 
-        showResult: () => {
+        showResult() {
             let src = '';
 
-            for (let lib in libs) if (libs.hasOwnProperty(lib)) src += libs[lib];
+            for (let lib in libs) if (libs.hasOwnProperty(lib)) { src += libs[lib] };
             src += $('#src').val();
 
             $('#result')[0].srcdoc = src;
         },
         
-        renderOutput: () => {
+        renderOutput() {
             var old_value = "";
 
             $('#src').on('input keydown', function() {
                 let value = $(this).val();
-                if (value == old_value) return;
+                if (value === old_value) return;
                 old_value = value;
                 editor.highlight(value);
             });
         },
 
-        highlight: val => {
+        highlight(val) {
             $('code', '.code-output').html(val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
             Prism.highlightAll();
         },
         
-        listenLanguage: language => {
+        listenLanguage(language) {
             $('.code-output').removeClass().addClass(`code-output language-${language}`);
             $('code', '.code-output').removeClass().addClass(`language-${language}`).removeAttr('data-language');
         },
         
-        listenerForScroll: () => {
+        listenerForScroll() {
             $('#src').on('scroll', function() {
                 $('.code-output')[0].scrollTop = this.scrollTop;
                 $('.code-output')[0].scrollLeft = this.scrollLeft;
             });
         },
 
-        sizeButtons: () => {
+        sizeButtons() {
             $('.size-plus-btn').click(() => {
                 var current = Number($(':root').css('--text-size').slice(0, -2));
 
@@ -408,7 +409,7 @@ let Editor = (() => {
             });
         },
 
-        modal: () => {
+        modal() {
             let selectionS, selectionE;
 
             $(document).on("keyup keydown", e => {
@@ -488,14 +489,14 @@ let Editor = (() => {
                     $("#src, .code-output").css("padding-top", "4.5rem");
                 }
 
-                $('#Editor').css('display', 'block')
-                $('#Libraries').css('display', 'none')
+                $('#Editor').css('display', 'block');
+                $('#Libraries').css('display', 'none');
 
                 $(':root').css('--indent-size', indentSize);
                 $('#indentSize').val(`${indentSize} spaces`);
                 $('#resultShown').prop('checked', resultShown);
-                $('#realtimeMode').prop('checked', realtime == 'on');
-                $('#autosaveMode').prop('checked', autosave == 'on');
+                $('#realtimeMode').prop('checked', realtime === 'on');
+                $('#autosaveMode').prop('checked', autosave === 'on');
 
                 for (let lib in libs) {
                     if (libs.hasOwnProperty(lib)) $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
@@ -511,11 +512,9 @@ let Editor = (() => {
             $('.nav-tabs a').click(function() {
                 $(this).tab('show');
 
-                let tabs = $('.tab-pane');
-
-                for (let i = 0; i <= tabs.length - 1; i++) {
-                    $(tabs[i]).css('display', 'none');
-                }
+                $('.tab-pane').each(element => { 
+                    $(element).css('display', 'none');
+                });
 
                 $(`#${this.innerHTML}`).css('display', 'block');
             });
@@ -543,7 +542,7 @@ let Editor = (() => {
                     let i = 0;
 
                     data.results.some((res) => {
-                        if (i > 30 || i >= data.results.length) return true;
+                        if (i > 30 || i >= data.results.length) { return true };
                         $('.dropdown-menu')[0].innerHTML += `<a class="dropdown-item libsItem" onclick="$('#libName').val($(this)[0].innerHTML); $('.dropdown-menu').removeClass('show'); libLink = '${res.latest}'">${res.name}</a>`;
                         i++;
                     });
@@ -592,10 +591,10 @@ let Editor = (() => {
 
                 let targetLine = src[index];
                 let indent = targetLine.match(/^\s*/)[0];
-                if (index === src.length) lines.push('');
+                if (index === src.length) { lines.push('') };
 
                 for (let lib in libs) {
-                    if (libs.hasOwnProperty(lib)) src.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${libs[lib]}`);
+                    if (libs.hasOwnProperty(lib)) { src.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${libs[lib]}`) };
                 }
 
                 let copy = $('<textarea>').val(src.join('\n')).appendTo('body').select();
@@ -606,7 +605,7 @@ let Editor = (() => {
                 setTimeout(() => { $(this).tooltip('hide'); }, 1000);
             });
         }
-    }
+    };
 })();
 
 Editor.init();
