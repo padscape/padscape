@@ -1,4 +1,7 @@
 # Padscape
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d666be2f3f6b4bc5ab9283cc05fdbd4b)](https://app.codacy.com/manual/BonfireScratch/padscape?utm_source=github.com&utm_medium=referral&utm_content=padscape/padscape&utm_campaign=Badge_Grade_Dashboard)
+
 ###### A new alternative to code editing
 
 ![License](https://img.shields.io/github/license/padscape/padscape)
