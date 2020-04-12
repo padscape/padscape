@@ -126,7 +126,7 @@ let Editor = (() => {
             $("body").append(content);
 
             isDefined = variable => {
-                return typeof variable !== undefined && variable !== "undefined";
+                return typeof variable !== 'undefined' && variable !== 'undefined';
             }
 
             textSize = (isDefined(localStorage.padscapeTextSize)) ? localStorage.padscapeTextSize : 19;
@@ -153,8 +153,8 @@ let Editor = (() => {
                 return new Promise((resolve, reject) => {
                     $.getJSON({
                         url: 'https://api.ipify.org/?format=json',
-                        success(ip) {
-                            resolve({pad, ip: ip});
+                        success(ip_) {
+                            resolve({pad, ip: ip_});
                         },
                         error: reject
                     });
@@ -183,10 +183,10 @@ let Editor = (() => {
                     username = data['ip']['ip'];
                     if (!location.hash || editor.emptyResponse) { creator = username; }
 
-                    if (creator !== username) { $('#save')[0].innerHTML = "Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"; }
+                    if (creator !== username) { $('#save').set("Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"); }
                     if (creator === username && location.hash) { $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`); }
 
-                    $('#info')[0].innerHTML = `A pad by ${(creator === username) ? 'you' : creator}`;
+                    $('#info').set(`A pad by ${(creator === username) ? 'you' : creator}`);
                     $('#src').val(defaultText);
                     editor.highlight($('#src').val());
 
