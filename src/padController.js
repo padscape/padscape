@@ -50,4 +50,4 @@ deleteCode = () => {
             location.reload();
         }
     });
-}
+};
