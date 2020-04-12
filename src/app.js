@@ -126,7 +126,7 @@ let Editor = (() => {
             $("body").append(content);
 
             isDefined = variable => {
-                return variable !== undefined && variable !== "undefined";
+                return typeof variable !== undefined && variable !== "undefined";
             }
 
             textSize = (isDefined(localStorage.padscapeTextSize)) ? localStorage.padscapeTextSize : 19;
@@ -316,7 +316,7 @@ let Editor = (() => {
         showResult() {
             let src = '';
 
-            for (let lib in libs) if (libs.hasOwnProperty(lib)) { src += libs[lib] };
+            for (let lib in libs) { if (libs.hasOwnProperty(lib)) { src += libs[lib]; } }
             src += $('#src').val();
 
             $('#result')[0].srcdoc = src;
@@ -327,7 +327,7 @@ let Editor = (() => {
 
             $('#src').on('input keydown', function() {
                 let value = $(this).val();
-                if (value === old_value) return;
+                if (value === old_value) { return; }
                 old_value = value;
                 editor.highlight(value);
             });
@@ -471,7 +471,7 @@ let Editor = (() => {
             });
 
             $(document).ready(() => {
-                if (localStorage.padscapeTheme == "dark") {
+                if (localStorage.padscapeTheme === "dark") {
                     theme = "dark";
                     $('#dark')[0].rel = 'stylesheet';
                     $('#white')[0].rel = 'stylesheet alternate';
@@ -499,7 +499,9 @@ let Editor = (() => {
                 $('#autosaveMode').prop('checked', autosave === 'on');
 
                 for (let lib in libs) {
-                    if (libs.hasOwnProperty(lib)) $('#libList')[0].innerHTML += `<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`;
+                    if ({}.hasOwnProperty.call(libs, lib)) {
+                        $('#libList').append(`<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`);
+                    }
                 }
             });
 
@@ -510,12 +512,11 @@ let Editor = (() => {
             });
 
             $('.nav-tabs a').click(function() {
-                $(this).tab('show');
-
-                $('.tab-pane').each(element => { 
+                $('.tab-pane').each((index, element) => { 
                     $(element).css('display', 'none');
                 });
-
+                
+                $(this).tab('show');
                 $(`#${this.innerHTML}`).css('display', 'block');
             });
 
@@ -533,7 +534,7 @@ let Editor = (() => {
                 const getLibs = async () => {
                     let response = await fetch(`https://api.cdnjs.com/libraries?search=${value}`);
                     return await response.json();
-                }
+                };
 
                 (async () => {
                     $('.dropdown-menu')[0].innerHTML = '';
@@ -542,8 +543,8 @@ let Editor = (() => {
                     let i = 0;
 
                     data.results.some((res) => {
-                        if (i > 30 || i >= data.results.length) { return true };
-                        $('.dropdown-menu')[0].innerHTML += `<a class="dropdown-item libsItem" onclick="$('#libName').val($(this)[0].innerHTML); $('.dropdown-menu').removeClass('show'); libLink = '${res.latest}'">${res.name}</a>`;
+                        if (i > 30 || i >= data.results.length) { return true; }
+                        $('.dropdown-menu').append(`<a class="dropdown-item libsItem" onclick="$('#libName').val($(this)[0].innerHTML); $('.dropdown-menu').removeClass('show'); libLink = '${res.latest}'">${res.name}</a>`);
                         i++;
                     });
                 })();
@@ -591,10 +592,12 @@ let Editor = (() => {
 
                 let targetLine = src[index];
                 let indent = targetLine.match(/^\s*/)[0];
-                if (index === src.length) { lines.push('') };
+                if (index === src.length) { lines.push(''); }
 
                 for (let lib in libs) {
-                    if (libs.hasOwnProperty(lib)) { src.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${libs[lib]}`) };
+                    if ({}.hasOwnProperty.call(libs, lib)) {
+                        src.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${libs[lib]}`);
+                    }
                 }
 
                 let copy = $('<textarea>').val(src.join('\n')).appendTo('body').select();
