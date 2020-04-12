@@ -3,6 +3,7 @@
 
 ![License](https://img.shields.io/github/license/padscape/padscape)
 ![Code Size](https://img.shields.io/github/languages/code-size/padscape/padscape)
+![Codacy Badge](https://api.codacy.com/project/badge/Grade/d666be2f3f6b4bc5ab9283cc05fdbd4b)
 
 Padscape is a new HTML realtime web editor. It will be available in several platforms in the future, like Android and Desktop, but right now it is only available on the web. :cry:
 
@@ -31,7 +32,6 @@ Current features:
 - [Pull Requests](https://github.com/padscape/padscape/pulls)
 
 #
-
 
 - BonfireScratch
   - Project Moderator
