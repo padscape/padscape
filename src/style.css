@@ -64,16 +64,43 @@ html, body, #page, .row {
     padding-left: 2rem;
 }
 
-.code-output {
-    pointer-events: none;
-    z-index: 3;
-    overflow: hidden;
+#src {
+    resize: none;
+    outline: 0;
+    box-shadow: none;
+}
+
+#src, code[class*="language-"], pre[class*="language-"] {
+    font-family: 'Inconsolata', monospace;
+    -moz-tab-size: var(--indent-size);
+    -o-tab-size: var(--indent-size);
+    tab-size: var(--indent-size);
+    font-size: var(--text-size);
+    word-wrap: break-word;
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+    line-height: 1.5;
+    white-space: pre;
+    text-align: left;
+}
+
+code[class*="language-"], pre[class*="language-"] {
     background: transparent;
+    text-shadow: none;
 }
 
 #resultCol {
     padding-right: 0;
     padding-top: 1rem;
+}
+
+.code-output {
+    pointer-events: none;
+    z-index: 3;
+    overflow: hidden;
+    background: transparent;
 }
 
 .nav-item {
@@ -95,7 +122,12 @@ html, body, #page, .row {
     z-index: 4;
     position: fixed;
     bottom: 26px;
-    opacity: 0;
+    opacity: 1;
+    transition: all 0.3s;
+}
+
+.size-plus-btn:hover, .size-minus-btn:hover {
+    opacity: 1;
 }
 
 .close {
