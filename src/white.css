@@ -3,43 +3,12 @@
 }
 
 #src {
-    resize: none;
-    -moz-tab-size: var(--indent-size);
-    -o-tab-size: var(--indent-size);
-    tab-size: var(--indent-size);
-    -webkit-hyphens: none;
-    -moz-hyphens: none;
-    -ms-hyphens: none;
-    hyphens: none;
-    outline: 0;
-    box-shadow: none;
-    font-family: 'Inconsolata', monospace;
-    font-size: var(--text-size);
-    line-height: 1.5;
-    background: ffffff;
+    background: #ffffff;
     caret-color: #000000;
-    white-space: pre;
-    word-wrap: break-word;
-    text-align: left;
 }
 
 code[class*="language-"], pre[class*="language-"] {
     color: #000000;
-    background: transparent;
-    text-shadow: none;
-    font-family: 'Inconsolata', monospace;
-    font-size: var(--text-size);
-    text-align: left;
-    white-space: pre;
-    word-wrap: break-word;
-    line-height: 1.5;
-    -moz-tab-size: var(--indent-size);
-    -o-tab-size: var(--indent-size);
-    tab-size: var(--indent-size);
-    -webkit-hyphens: none;
-    -moz-hyphens: none;
-    -ms-hyphens: none;
-    hyphens: none;
 }
 
 .token.comment, .token.prolog, .token.doctype, .token.cdata {
