@@ -35,13 +35,13 @@ let Editor = (() => {
                                     </div>
                                 </nav>
                                 <div class="row">
-                                    <div id="codeCol" class="col">
+                                    <div id="codeCol">
                                         <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" autofocus></textarea>
                                         <pre class="code-output"><code class="language-html"></code></pre>
                                         <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
                                         <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
                                     </div>
-                                    <div id="resultCol" class="col">
+                                    <div id="resultCol">
                                         <iframe id="result"></iframe></div>
                                     </div>
                                 </div>
@@ -145,11 +145,12 @@ let Editor = (() => {
             // Add the split pane
 
             Split(["#codeCol", "#resultCol"], {
-                elementStyle: (dimension, size, gutterSize) => { 
-                    return {'flex-basis': `calc(${size}% - ${gutterSize}px)`};
+                elementStyle: (dimension, size, gutterSize) => {
+                    return {'width': `calc(${size}% - ${gutterSize}px)`};
                 },
 
                 sizes: [50, 50],
+                minSize: [300, 300],
                 gutterSize: 6,
                 cursor: 'col-resize'
             });
@@ -201,6 +202,9 @@ let Editor = (() => {
                     $('[data-toggle="tooltip"]').tooltip();
                 });
             }
+
+            // Adjust the width of the textarea
+            $('#src, .code-output').css('width', `calc(${$('#codeCol').css('width')} - 15px)`);
 
             editor.listenLanguage('html');
             editor.getInput();
@@ -400,7 +404,7 @@ let Editor = (() => {
 
             position = () => {
                 // Position the element correctly.
-                let position = $('#codeCol').css('width');
+                let position = $('#src').css('width');
                 $('.size-plus-btn').css('left', `calc(${position} - 70px)`);
                 $('.size-minus-btn').css('left', `calc(${position} - 119px)`);
             }
@@ -408,6 +412,7 @@ let Editor = (() => {
             let observer = new MutationObserver(mutations => {
                 mutations.forEach(() => {
                     // When the container is resized
+                    $('#src, .code-output').css('width', `calc(${$('#codeCol').css('width')} - 15px)`);
                     position();
                 });    
             });
@@ -431,15 +436,15 @@ let Editor = (() => {
                 }
             });
 
-            $("#settingsModal").on('show.bs.modal', function() {
-                selectionS = $('#src')[0].selectionStart;
-                selectionE = $('#src')[0].selectionEnd;
+            $("#settingsModal").on('show.bs.modal', () => {
+                selectionS = $('#src').attr('selectionStart');
+                selectionE = $('#src').attr('selectionEnd');
             });
 
             $("#settingsModal").on('hidden.bs.modal', () => {
                 // When modal closes, continue where you left off
-                $('#src')[0].selectionStart = selectionS;
-                $('#src')[0].selectionEnd = selectionE;
+                $('#src').attr('selectionStart', selectionS);
+                $('#src').attr('selectionEnd', selectionE);
                 $('#src').focus();
             });
 
@@ -493,7 +498,7 @@ let Editor = (() => {
 
             $('#resultShown').click(() => {
                 resultShown = $('#resultShown').prop('checked');
-                $('#resultCol').css('display', (resultShown) ? 'block' : 'none');
+                $('#src, .code-output').css('width', (resultShown) ? `calc(${$('#codeCol').css('width')} - 15px)` : '100%');
                 localStorage.padscapeResultShown = resultShown;
                 // Position the size buttons
                 editor.sizeButtons();
