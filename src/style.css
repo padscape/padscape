@@ -58,7 +58,6 @@ html, body, #page, .row {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
     padding: 1rem;
     padding-top: 5rem;
     padding-left: 2rem;
@@ -92,8 +91,9 @@ code[class*="language-"], pre[class*="language-"] {
 }
 
 #resultCol {
-    padding-right: 0;
-    padding-top: 1rem;
+    padding-left: 1rem;
+    padding-top: 0rem;
+    /* height: calc(50% - 3px); */
 }
 
 .code-output {
@@ -337,24 +337,19 @@ code[class*="language-"], pre[class*="language-"] {
 }
 
 .gutter {
-    background-color: transparent;
+    background-color: lightgrey;
     background-repeat: no-repeat;
     background-position: 50%;
 }
 
 .gutter.gutter-horizontal {
+    height: 100%;
     cursor: col-resize;
-    background-color: lightgrey;
 }
 
 .gutter.gutter-vertical {
+    width: 100%;
     cursor: row-resize;
-    background-color: lightgrey;
-}
-
-.split.split-horizontal, .gutter.gutter-horizontal {
-    height: 100%;
-    float: left;
 }
 
 pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection, code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {

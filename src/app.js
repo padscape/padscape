@@ -94,6 +94,13 @@ let Editor = (() => {
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="row vertical-align" style="padding: 0">
+                                                    <div class="col">
+                                                        <button type="button" class="btn btn-primary" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns fa-rotate-270"></i></button>
+                                                        <button type="button" class="btn btn-primary" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns"></i></button>
+                                                        <label for="horizontal-split">Layout</label>
+                                                    </div>
+                                                </div>
                                                 <br><br>
                                                 <div class="text-center" id="export-delete">
                                                     <button type="button" class="btn btn-primary noGlow" id="export" data-tooltip-text="1">Export&nbsp;&nbsp;&nbsp;<i class='fas fa-file-export'></i></button>
@@ -138,22 +145,10 @@ let Editor = (() => {
             autosave = (isDefined(localStorage.padscapeAutosave)) ? localStorage.padscapeAutosave : 'off';
             resultShown = (isDefined(localStorage.padscapeResultShown)) ? localStorage.padscapeResultShown : true;
             theme = (isDefined(localStorage.padscapeTheme)) ? localStorage.padscapeTheme : 'dark';
+            split = (isDefined(localStorage.padscapeLayout)) ? localStorage.padscapeLayout : 'horizontal';
             hasSaved = false;
 
             $(':root').css('--indent-size', indentSize);
-
-            // Add the split pane
-
-            Split(["#codeCol", "#resultCol"], {
-                elementStyle: (dimension, size, gutterSize) => {
-                    return {'width': `calc(${size}% - ${gutterSize}px)`};
-                },
-
-                sizes: [50, 50],
-                minSize: [300, 300],
-                gutterSize: 6,
-                cursor: 'col-resize'
-            });
 
             // Get data about the pad
 
@@ -203,9 +198,7 @@ let Editor = (() => {
                 });
             }
 
-            // Adjust the width of the textarea
-            $('#src, .code-output').css('width', `calc(${$('#codeCol').css('width')} - 15px)`);
-
+            editor.splitPanes();
             editor.listenLanguage('html');
             editor.getInput();
             editor.runCode();
@@ -220,6 +213,65 @@ let Editor = (() => {
                 $('#load').css('visibility', 'hidden');
                 $('#page').css({'visibility': 'visible', 'opacity': '1'});
             };
+        },
+
+        splitPanes() {
+            makePanes = () => {
+                $('.gutter').remove();
+
+                Split(["#codeCol", "#resultCol"], {
+                    direction: split,
+                    sizes: [50, 50],
+                    minSize: [300, 300],
+                    gutterSize: 6,
+                    cursor: `${(split === 'horizontal') ? 'col' : 'row'}-resize`
+                });
+            }
+
+            positionPanes = () => {
+                // Adjust the width of the textarea
+
+                if (split === 'horizontal') {
+                    $('#codeCol').css('height', '100%');
+                    $('#src, .code-output').css({'width': `calc(${$('#codeCol').css('width')} - 15px)`, 'height': '100%'});
+                } else {
+                    $('#codeCol').css('width', '100%');
+                    $('#src, .code-output').css({'height': `calc(${$('#codeCol').css('height')} + 52px)`, 'width': '100%'});
+                }
+
+                editor.sizeButtons();
+                editor.sizeButtons.position();
+            }
+
+            updateSplit = direction => {
+                if (split === direction) return;
+
+                split = direction;
+                localStorage.padscapeLayout = split;
+
+                makePanes();
+                positionPanes();
+            }
+
+            window.onresize = () => {
+                positionPanes();
+            };
+
+            let observer = new MutationObserver(mutations => {
+                mutations.forEach(() => {
+                    // When the container is resized
+                    positionPanes();
+                });    
+            });
+            
+            observer.observe($('#codeCol')[0], {
+                attributes: true, attributeFilter: ['style']
+            });
+
+            makePanes();
+            positionPanes();
+
+            editor.splitPanes.updateSplit = updateSplit;
         },
 
         saveText() {
@@ -398,27 +450,17 @@ let Editor = (() => {
                 localStorage.padscapeTextSize = textSize;
             });
 
-            $(document).ready(() => {
-                $(':root').css('--text-size', `${textSize}px`);
-            });
-
             position = () => {
-                // Position the element correctly.
-                let position = $('#src').css('width');
-                $('.size-plus-btn').css('left', `calc(${position} - 70px)`);
-                $('.size-minus-btn').css('left', `calc(${position} - 119px)`);
+                // Position the element correctly
+                let xPosition = $('#src').css('width');
+                let yPosition = Number($('#src').css('height').slice(0, -2));
+                $('.size-plus-btn').css({'left': `calc(${xPosition} - 70px)`, 'top': `${Math.min(yPosition, window.innerHeight) - 50}px`});
+                $('.size-minus-btn').css({'left': `calc(${xPosition} - 119px)`, 'top': `${Math.min(yPosition, window.innerHeight) - 50}px`});
             }
 
-            let observer = new MutationObserver(mutations => {
-                mutations.forEach(() => {
-                    // When the container is resized
-                    $('#src, .code-output').css('width', `calc(${$('#codeCol').css('width')} - 15px)`);
-                    position();
-                });    
-            });
-            
-            observer.observe($('#codeCol')[0], {
-                attributes: true, attributeFilter: ['style']
+            $(document).ready(() => {
+                position();
+                $(':root').css('--text-size', `${textSize}px`);
             });
 
             // Make position() accessible from the outer scope
@@ -454,6 +496,16 @@ let Editor = (() => {
 
             $('body').delegate('#delete', 'click', () => {
                 deleteCode();
+            });
+
+            $('#horizontal-split').click(() => {
+                editor.splitPanes();
+                editor.splitPanes.updateSplit('horizontal');
+            });
+
+            $('#vertical-split').click(() => {
+                editor.splitPanes();
+                editor.splitPanes.updateSplit('vertical');
             });
 
             $('#darkMode').click(function() {
@@ -498,8 +550,14 @@ let Editor = (() => {
 
             $('#resultShown').click(() => {
                 resultShown = $('#resultShown').prop('checked');
-                $('#src, .code-output').css('width', (resultShown) ? `calc(${$('#codeCol').css('width')} - 15px)` : '100%');
                 localStorage.padscapeResultShown = resultShown;
+
+                if (split === 'horizontal') {
+                    $('#codeCol').css('width', `${(resultShown) ? 50 : 100}%`);
+                } else {
+                    $('#codeCol').css('height', `${(resultShown) ? 50 : 100}%`);
+                }
+
                 // Position the size buttons
                 editor.sizeButtons();
                 editor.sizeButtons.position();
