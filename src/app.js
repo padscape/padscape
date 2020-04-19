@@ -165,17 +165,24 @@ let Editor = (() => {
             }
 
             if (!location.hash) {
-                defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
-                libs = (isDefined(localStorage.padscapeLib)) ? JSON.parse(localStorage.padscapeLib) : {};
-                $('#src').val(defaultText);
-                editor.highlight(defaultText);
-                editor.showResult();
+                getUsername().then(data => {
+                    username = data['ip']['ip'];
+                    creator = username;
+                    defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+                    libs = (isDefined(localStorage.padscapeLib)) ? JSON.parse(localStorage.padscapeLib) : {};
+                    $('#src').val(defaultText);
+
+                    editor.highlight(defaultText);
+                    editor.showResult();
+                    editor.runAll();
+                });
             } else {
                 getPadContents(window.location.hash.substring(1)).then(getUsername).then(data => {
                     if (data['pad']) {
                         $('#src').val(data['pad']['Code']);
                         defaultText = data['pad']['Code'];
                         creator = data['pad']['Creator'];
+                        libs = JSON.parse(data['pad']['Libraries']);
                         editor.highlight(defaultText);
                         editor.showResult();
                         editor.emptyResponse = false;
@@ -186,18 +193,27 @@ let Editor = (() => {
                     username = data['ip']['ip'];
                     if (!location.hash || editor.emptyResponse) { creator = username; }
 
-                    if (creator !== username) { $('#save').set("Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"); }
+                    if (creator !== username) { $('#save').html("Fork&nbsp;&nbsp;&nbsp;<i class='fas fa-code-branch'></i>"); }
                     if (creator === username && location.hash) { $('#export-delete').append(`<button type="button" class="btn btn-danger noGlow" id="delete">Delete&nbsp;&nbsp;&nbsp;<i class='fas fa-trash'></i></button>`); }
 
-                    $('#info').set(`A pad by ${(creator === username) ? 'you' : creator}`);
+                    $('#info').html(`A pad by ${(creator === username) ? 'you' : creator}`);
                     $('#src').val(defaultText);
                     editor.highlight($('#src').val());
 
                     $('#indentSize').val(`${indentSize} spaces`);
                     $('[data-toggle="tooltip"]').tooltip();
+
+                    editor.runAll();
                 });
             }
+        },
 
+        runAll() {
+            // Remove the loading animation
+            $('#load').css('visibility', 'hidden');
+            $('#page').css({'visibility': 'visible', 'opacity': '1'});
+
+            // Call all the member functions
             editor.splitPanes();
             editor.listenLanguage('html');
             editor.getInput();
@@ -207,12 +223,6 @@ let Editor = (() => {
             editor.listenerForScroll();
             editor.modal();
             editor.sizeButtons();
-
-            window.onload = () => {
-                // Remove the loading animation
-                $('#load').css('visibility', 'hidden');
-                $('#page').css({'visibility': 'visible', 'opacity': '1'});
-            };
         },
 
         splitPanes() {
@@ -615,7 +625,16 @@ let Editor = (() => {
                     let toAdd = `<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}${(libName.includes('https://')) ? libName : libLink}">${(type === 'js') ? '</script>' : ''}`;
                     $('#libList').append(`<li class="list-group-item d-flex align-items-center">${libName} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`);
                     libs[libName] = toAdd;
-                    localStorage.padscapeLib = JSON.stringify(libs);
+
+                    if (location.hash) {
+                        if (creator === username) {
+                            saveToDatabase();
+                        } else {
+                            forkCode();
+                        }
+                    } else {
+                        localStorage.padscapeLib = JSON.stringify(libs);
+                    }
                 }
             });
 
@@ -624,7 +643,17 @@ let Editor = (() => {
 
                 let libName = $(this).parent().text().slice(0, -7);
                 delete libs[libName];
-                localStorage.padscapeLib = JSON.stringify(libs);
+
+                if (location.hash) {
+                    if (creator === username) {
+                        saveToDatabase();
+                    } else {
+                        forkCode();
+                    }
+                } else {
+                    localStorage.padscapeLib = JSON.stringify(libs);
+                }
+                
                 $(this).parent().addClass('deleteLib');
                 setTimeout(() => { $(this).parent().remove(); }, 200);
             });

@@ -15,7 +15,7 @@ saveToDatabase = () => {
     $.ajax({
         url: `https://kouritis.ddns.net/code/${(requestType === 'put') ? window.location.hash.substring(1) : ''}`,
         type: requestType,
-        data: `Code=${(text !== '') ? text : ' '}&Creator=${username}`,
+        data: `Code=${(text !== '') ? text : ' '}&Creator=${username}&Libraries=${JSON.stringify(libs)}`,
         contentType: 'application/x-www-form-urlencoded',
         dataType: 'json',
         success: data => {
@@ -31,7 +31,7 @@ forkCode = () => {
     $.ajax({
         url: 'https://kouritis.ddns.net/code/',
         type: 'post',
-        data: `Code=${$("#src").val().replace(/"/g, "'")}&Creator=${username}`,
+        data: `Code=${$("#src").val().replace(/"/g, "'")}&Creator=${username}&Libraries=${JSON.stringify(libs)}`,
         contentType: 'application/x-www-form-urlencoded',
         success: data => {
             location.href = `${location.href.split('#')[0]}#${data['id']}`;

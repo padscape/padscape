@@ -93,7 +93,6 @@ code[class*="language-"], pre[class*="language-"] {
 #resultCol {
     padding-left: 1rem;
     padding-top: 0rem;
-    /* height: calc(50% - 3px); */
 }
 
 .code-output {
