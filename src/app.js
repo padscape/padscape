@@ -104,6 +104,8 @@ let Editor = (() => {
                                                 <br><br>
                                                 <div class="text-center" id="export-delete">
                                                     <button type="button" class="btn btn-primary noGlow" id="export" data-tooltip-text="1">Export&nbsp;&nbsp;&nbsp;<i class='fas fa-file-export'></i></button>
+                                                    <button type="button" class="btn btn-primary noGlow" id="import" data-tooltip-text="1">Import&nbsp;&nbsp;&nbsp;<i class='fas fa-file-import'></i></button>
+                                                    <input type="file" style="display: none">
                                                 </div>
                                             </div>
                                             <div class="container tab-pane" id="Libraries">
@@ -656,6 +658,23 @@ let Editor = (() => {
                 
                 $(this).parent().addClass('deleteLib');
                 setTimeout(() => { $(this).parent().remove(); }, 200);
+            });
+
+            $('#import').on('click', () => {
+                $(':file').trigger('click');
+            });
+
+            $(':file').on('change', () => {
+                let fileReader = new FileReader();
+
+                fileReader.onload = () => {
+                    defaultText = fileReader.result;
+                    $('#src').val(defaultText);
+                    editor.highlight(defaultText);
+                    editor.showResult();
+                };
+
+                fileReader.readAsText($(':file').prop('files')[0]);
             });
 
             $('#export').tooltip({

@@ -156,12 +156,12 @@ code[class*="language-"], pre[class*="language-"] {
     animation: scaleFadeOut 0.2s linear;
 }
 
-#delete, #export {
+#delete, #export, #import {
     border-radius: 10rem;
     padding: 10px 20px;
 }
 
-#delete:hover, #export:hover {
+#delete:hover, #export:hover, #import:hover {
     animation: rotate 0.7s ease-in-out both;
 }
 
