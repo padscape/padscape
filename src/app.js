@@ -37,7 +37,7 @@ let Editor = (() => {
                                 <div class="row">
                                     <div id="codeCol">
                                         <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" autofocus></textarea>
-                                        <pre class="code-output"><code class="language-html"></code></pre>
+                                        <pre class="code-output language-html line-number"><code></code></pre>
                                         <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
                                         <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
                                     </div>
@@ -150,7 +150,7 @@ let Editor = (() => {
             split = (isDefined(localStorage.padscapeLayout)) ? localStorage.padscapeLayout : 'horizontal';
             hasSaved = false;
 
-            $(':root').css('--indent-size', indentSize);
+            $(':root').css({'--text-size': textSize, '--indent-size': indentSize});
 
             // Get data about the pad
 
@@ -298,7 +298,7 @@ let Editor = (() => {
             });
 
             $('#src').on('keyup keydown', () => {
-                if (autosave) {
+                if (autosave === 'on') {
                     hasSaved = true;
 
                     if (!location.hash) {
@@ -448,6 +448,7 @@ let Editor = (() => {
 
                 textSize = current + 2;
                 localStorage.padscapeTextSize = textSize;
+                Prism.highlightAll();
             });
 
             $('.size-minus-btn').click(() => {
@@ -460,6 +461,7 @@ let Editor = (() => {
 
                 textSize = current - 2;
                 localStorage.padscapeTextSize = textSize;
+                Prism.highlightAll();
             });
 
             position = () => {
@@ -565,7 +567,7 @@ let Editor = (() => {
                 localStorage.padscapeResultShown = resultShown;
 
                 if (split === 'horizontal') {
-                    $('#codeCol').css('width', `${(resultShown) ? 50 : 100}%`);
+                    $('#codeCol').css('width', `calc(${(resultShown) ? 50 : 100}% - 3px)`);
                 } else {
                     $('#codeCol').css('height', `${(resultShown) ? 50 : 100}%`);
                 }
@@ -755,6 +757,47 @@ let Editor = (() => {
             });
         }
     };
+})();
+
+(function(){
+    if (!window.Prism || !document.querySelectorAll) {
+        return;
+    }
+
+    $$ = (expr, con) => {
+        return Array.prototype.slice.call((con || document).querySelectorAll(expr));
+    }
+        
+    numberLines = pre => {
+        let offset = +pre.getAttribute('data-line-offset') || 0;
+        let lineHeight = Number(textSize) * 1.5 - 0.5;
+        let code = pre.querySelector('code');
+        let numLines = code.innerHTML.split('\n').length;
+        pre.setAttribute('data-number', '');
+
+        for (let i = 1; i <= numLines; i++) {
+            let line = document.createElement('span');
+            line.className = 'line-number';
+            line.setAttribute('data-start', i);
+            line.style.top = (i - offset - 1) * lineHeight + 'px';
+            
+            (code || pre).appendChild(line);
+        }
+    }
+
+    Prism.hooks.add('after-highlight', env => {
+        let pre = env.element.parentNode;
+        
+        if (!pre || !/pre/i.test(pre.nodeName)) {
+            return;
+        }
+
+        $$('.line-number', pre).forEach(line => {
+            line.parentNode.removeChild(line);
+        });
+        
+        numberLines(pre);
+    });
 })();
 
 Editor.init();

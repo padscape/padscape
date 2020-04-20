@@ -13,12 +13,13 @@ Go to https://padscape.github.io/padscape/
 ## Features
 Padscape will feature:
 - Syntax highlighting with numerous themes
-- The ability to use links to see other people's Padscapes
 - A nice, responsive UI
 - A social-media type of user profiles
 
 Current features:
 - Syntax highlighting (2 themes)
+- Saving and viewing others' Pads
+- A library handling system
 
 ## Built with
 - [Bootstrap 4](https://getbootstrap.com/) - Primary CSS framework

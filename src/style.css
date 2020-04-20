@@ -92,7 +92,7 @@ code[class*="language-"], pre[class*="language-"] {
 
 #resultCol {
     padding-left: 1rem;
-    padding-top: 0rem;
+    padding-top: 0;
 }
 
 .code-output {
@@ -349,6 +349,42 @@ code[class*="language-"], pre[class*="language-"] {
 .gutter.gutter-vertical {
     width: 100%;
     cursor: row-resize;
+}
+
+pre[data-number] {
+    position: relative;
+    padding: 1.8rem 0 1rem 3rem;
+}
+
+.line-number {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: inherit 0;
+    margin-top: 1rem;
+    background: transparent;
+    pointer-events: none;
+    white-space: pre;
+    line-height: inherit;
+}
+
+.line-number:before, .line-number[data-end]:after {
+    content: attr(data-start);
+    position: absolute;
+    top: 0.3rem;
+    left: 0.6rem;
+    min-width: 1rem;
+    padding: 0.5rem;
+    color: #999;
+    text-align: center;
+    vertical-align: 0.3rem;
+    border-radius: 999px;
+    border: 0;
+}
+    
+.line-number[data-end]:after {
+    content: attr(data-end);
+    bottom: 0.4rem;
 }
 
 pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection, code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
