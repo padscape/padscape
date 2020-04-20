@@ -10,7 +10,7 @@ getPadContents = id => {
 
 saveToDatabase = () => {
     let requestType = ((editor.emptyResponse && !hasSaved) || !location.hash) ? "post" : "put";
-    let text = $("#src").val().replace(/"/g, '\\"');
+    let text = $("#src").val();
 
     $.ajax({
         url: `https://kouritis.ddns.net/code/${(requestType === 'put') ? window.location.hash.substring(1) : ''}`,
@@ -31,7 +31,7 @@ forkCode = () => {
     $.ajax({
         url: 'https://kouritis.ddns.net/code/',
         type: 'post',
-        data: `Code=${$("#src").val().replace(/"/g, "'")}&Creator=${username}&Libraries=${JSON.stringify(libs)}`,
+        data: `Code=${$("#src").val()}&Creator=${username}&Libraries=${JSON.stringify(libs)}`,
         contentType: 'application/x-www-form-urlencoded',
         success: data => {
             location.href = `${location.href.split('#')[0]}#${data['id']}`;

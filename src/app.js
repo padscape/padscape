@@ -242,10 +242,10 @@ let Editor = (() => {
                 // Adjust the width of the textarea
 
                 if (split === 'horizontal') {
-                    $('#codeCol').css('height', '100%');
+                    $('#codeCol, #resultCol').css('height', '100%');
                     $('#src, .code-output').css({'width': `calc(${$('#codeCol').css('width')} - 15px)`, 'height': '100%'});
                 } else {
-                    $('#codeCol').css('width', '100%');
+                    $('#codeCol, #resultCol').css('width', '100%');
                     $('#src, .code-output').css({'height': `calc(${$('#codeCol').css('height')} + 52px)`, 'width': '100%'});
                 }
 
