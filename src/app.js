@@ -231,7 +231,7 @@ let Editor = (() => {
             makePanes = () => {
                 $('.gutter').remove();
 
-                Split(["#codeCol", "#resultCol"], {
+                let pane = new Split(["#codeCol", "#resultCol"], {
                     direction: split,
                     sizes: [50, 50],
                     minSize: [300, 300],
@@ -256,7 +256,7 @@ let Editor = (() => {
             }
 
             updateSplit = direction => {
-                if (split === direction) return;
+                if (split === direction) { return; }
 
                 split = direction;
                 localStorage.padscapeLayout = split;
@@ -438,36 +438,34 @@ let Editor = (() => {
         },
 
         sizeButtons() {
-            $('.size-plus-btn').click(() => {
+            $('.size-plus-btn').off().on('click', () => {
                 // Increase the font size
-                let current = Number($(':root').css('--text-size').slice(0, -2));
+                if (typeof textSize !== 'number') { textSize = parseInt(textSize); }
 
-                if (current < 55) {
-                    $(':root').css('--text-size', `${current + 2}px`);
+                if (textSize < 55) {
+                    textSize += 2;
+                    $(':root').css('--text-size', `${textSize}px`);
+                    localStorage.padscapeTextSize = textSize;
+                    Prism.highlightAll();
                 }
-
-                textSize = current + 2;
-                localStorage.padscapeTextSize = textSize;
-                Prism.highlightAll();
             });
 
-            $('.size-minus-btn').click(() => {
+            $('.size-minus-btn').off().on('click', () => {
                 // Decrease the font size
-                let current = Number($(':root').css('--text-size').slice(0, -2));
+                if (typeof textSize !== 'number') { textSize = parseInt(textSize); }
 
-                if (current > 1) {
-                    $(':root').css('--text-size', `${current - 2}px`);
+                if (textSize > 1) {
+                    textSize -= 2;
+                    $(':root').css('--text-size', `${textSize}px`);
+                    localStorage.padscapeTextSize = textSize;
+                    Prism.highlightAll();
                 }
-
-                textSize = current - 2;
-                localStorage.padscapeTextSize = textSize;
-                Prism.highlightAll();
             });
 
             position = () => {
                 // Position the element correctly
                 let xPosition = $('#src').css('width');
-                let yPosition = Number($('#src').css('height').slice(0, -2));
+                let yPosition = parseInt($('#src').css('height').slice(0, -2));
                 $('.size-plus-btn').css({'left': `calc(${xPosition} - 70px)`, 'top': `${Math.min(yPosition, window.innerHeight) - 50}px`});
                 $('.size-minus-btn').css({'left': `calc(${xPosition} - 119px)`, 'top': `${Math.min(yPosition, window.innerHeight) - 50}px`});
             }
@@ -557,7 +555,7 @@ let Editor = (() => {
             $('#indentSize').on('change', function() {
                 // Change and save the indent size
 
-                let indentSize = Number(this.value.slice(0, -7));
+                let indentSize = parseInt(this.value.slice(0, -7));
                 $(':root').css('--indent-size', indentSize);
                 localStorage.padscapeIndentSize = indentSize;
             });
@@ -759,7 +757,7 @@ let Editor = (() => {
     };
 })();
 
-(function(){
+(function() {
     if (!window.Prism || !document.querySelectorAll) {
         return;
     }
@@ -770,7 +768,7 @@ let Editor = (() => {
         
     numberLines = pre => {
         let offset = +pre.getAttribute('data-line-offset') || 0;
-        let lineHeight = Number(textSize) * 1.5 - 0.5;
+        let lineHeight = parseInt(textSize) * 1.5 - 0.5;
         let code = pre.querySelector('code');
         let numLines = code.innerHTML.split('\n').length;
         pre.setAttribute('data-number', '');
@@ -783,7 +781,7 @@ let Editor = (() => {
             
             (code || pre).appendChild(line);
         }
-    }
+    };
 
     Prism.hooks.add('after-highlight', env => {
         let pre = env.element.parentNode;
@@ -798,6 +796,6 @@ let Editor = (() => {
         
         numberLines(pre);
     });
-})();
+}());
 
 Editor.init();
