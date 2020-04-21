@@ -60,7 +60,6 @@ html, body, #page, .row {
     left: 0;
     padding: 1rem;
     padding-top: 5rem;
-    padding-left: 2rem;
 }
 
 #src {
@@ -349,11 +348,6 @@ code[class*="language-"], pre[class*="language-"] {
 .gutter.gutter-vertical {
     width: 100%;
     cursor: row-resize;
-}
-
-pre[data-number] {
-    position: relative;
-    padding: 1.8rem 0 1rem 3rem;
 }
 
 .line-number {

@@ -448,18 +448,22 @@ let Editor = (() => {
                     localStorage.padscapeTextSize = textSize;
                     Prism.highlightAll();
                 }
+
+                $('#src, .code-output').css('padding-left', `${textSize / 16 + 1}rem`);
             });
 
             $('.size-minus-btn').off().on('click', () => {
                 // Decrease the font size
                 if (typeof textSize !== 'number') { textSize = parseInt(textSize); }
 
-                if (textSize > 1) {
+                if (textSize > 2) {
                     textSize -= 2;
                     $(':root').css('--text-size', `${textSize}px`);
                     localStorage.padscapeTextSize = textSize;
                     Prism.highlightAll();
                 }
+
+                $('#src, .code-output').css('padding-left', `${textSize / 16 + 1}rem`);
             });
 
             position = () => {
@@ -764,23 +768,16 @@ let Editor = (() => {
 
     $$ = (expr, con) => {
         return Array.prototype.slice.call((con || document).querySelectorAll(expr));
-    }
+    };
         
-    numberLines = pre => {
-        let offset = +pre.getAttribute('data-line-offset') || 0;
-        let lineHeight = parseInt(textSize) * 1.5 - 0.5;
-        let code = pre.querySelector('code');
-        let numLines = code.innerHTML.split('\n').length;
-        pre.setAttribute('data-number', '');
+    numberLines = () => {
+        let lineHeight = parseInt(textSize) * 1.5;
 
-        for (let i = 1; i <= numLines; i++) {
-            let line = document.createElement('span');
-            line.className = 'line-number';
-            line.setAttribute('data-start', i);
-            line.style.top = (i - offset - 1) * lineHeight + 'px';
-            
-            (code || pre).appendChild(line);
+        for (let i = 1; i < $('code').html().split('\n').length; i++) {          
+            $('code').append(`<span class="line-number" data-start="${i}" style="top: calc(${lineHeight * (i - 1)}px + 3.2rem)"></span>`);
         }
+
+        $('#src, .code-output').css('padding-left', `${textSize / 16 + 1}rem`);
     };
 
     Prism.hooks.add('after-highlight', env => {
@@ -791,10 +788,11 @@ let Editor = (() => {
         }
 
         $$('.line-number', pre).forEach(line => {
+            console.log(line);
             line.parentNode.removeChild(line);
         });
         
-        numberLines(pre);
+        numberLines();
     });
 }());
 
