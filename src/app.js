@@ -1,4 +1,4 @@
-let defaultText, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, hasSaved;
+let defaultText, lang, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, hasSaved;
 
 let Editor = (() => {
     return {
@@ -86,7 +86,22 @@ let Editor = (() => {
                                                     </div>
                                                     <label for="indentSize">Indent Size</label>
                                                 </div>
-                                                <div class="row" style="padding-top: 4px;">
+                                                <div class="row vertical-align" style="padding-top: 4px;">
+                                                    <div class="col-6">
+                                                        <select name="lang" class="custom-select" id="lang">
+                                                            <option val="html">HTML</option>
+                                                            <option val="python">Python</option>
+                                                            <option val="java">Java</option>
+                                                            <option val="c">C</option>
+                                                            <option val="cpp">C++</option>
+                                                            <option val="go">Go</option>
+                                                            <option val="rust">Rust</option>
+                                                            <option val="scala">Scala</option>
+                                                        </select>
+                                                    </div>
+                                                    <label for="lang">Programming Language</label>
+                                                </div>
+                                                <div class="row resultShownRow" style="padding-top: 4px;">
                                                     <div class="col">
                                                         <div class="custom-control custom-checkbox">
                                                             <input type="checkbox" class="custom-control-input" id="resultShown">
@@ -148,9 +163,11 @@ let Editor = (() => {
             resultShown = (isDefined(localStorage.padscapeResultShown)) ? localStorage.padscapeResultShown : true;
             theme = (isDefined(localStorage.padscapeTheme)) ? localStorage.padscapeTheme : 'dark';
             split = (isDefined(localStorage.padscapeLayout)) ? localStorage.padscapeLayout : 'horizontal';
+            lang = (isDefined(localStorage.padscapeLanguage)) ? localStorage.padscapeLanguage : 'html';
             hasSaved = false;
 
             $(':root').css({'--text-size': textSize, '--indent-size': indentSize});
+            editor.listenLanguage(lang);
 
             // Get data about the pad
 
@@ -170,9 +187,9 @@ let Editor = (() => {
                 getUsername().then(data => {
                     username = data['ip']['ip'];
                     creator = username;
-                    defaultText = (localStorage.defaultText) ? localStorage.defaultText : '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>App</h1>\n\t</body>\n</html>';
+                    
                     libs = (isDefined(localStorage.padscapeLib)) ? JSON.parse(localStorage.padscapeLib) : {};
-                    $('#src').val(defaultText);
+                    $('#src').val(editor.getText(false));
 
                     editor.highlight(defaultText);
                     editor.showResult();
@@ -217,7 +234,6 @@ let Editor = (() => {
 
             // Call all the member functions
             editor.splitPanes();
-            editor.listenLanguage('html');
             editor.getInput();
             editor.runCode();
             editor.renderOutput();
@@ -225,6 +241,34 @@ let Editor = (() => {
             editor.listenerForScroll();
             editor.modal();
             editor.sizeButtons();
+        },
+
+        getText() {
+            defaultText = (function() {
+                if (isDefined(localStorage.defaultText) && localStorage.defaultText != '' && lang === 'HTML') {
+                    return localStorage.defaultText;
+                } else if (lang === 'HTML') {
+                    return '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>Hello, World!</h1>\n\t</body>\n</html>';
+                } else if (lang === 'C++') {
+                    return '#include <iostream>\n\nint main() {\n\tstd::cout << "Hello, World!";\n\treturn 0;\n}';
+                } else if (lang === 'Python') {
+                    return 'print("Hello, World!")';
+                } else if (lang === 'Rust') {
+                    return 'fn main() {\n\tprintln!("Hello, World!");\n}';
+                } else if (lang === 'C') {
+                    return '#include <stdio.h>\n\nint main() {\n\tprintf("Hello, World!");\n\treturn 0;\n}';
+                } else if (lang === 'Go') {
+                    return 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, World!")\n}';
+                } else if (lang === 'Java') {
+                    return 'class App {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello, World!");\n\t}\n}';
+                } else if (lang === 'Scala') {
+                    return 'object App {\n\tdef main(args: Array[String]) = {\n\t\tprintln("Hello, World!")\n\t}\n}';
+                } else {
+                    return 'Hello, World!';
+                }
+            }());
+
+            return defaultText;
         },
 
         splitPanes() {
@@ -422,6 +466,29 @@ let Editor = (() => {
         },
         
         listenLanguage(language) {
+            if (language === 'HTML') {
+                $('.resultShownRow .col, .nav-tabs .nav-item:nth-child(2)').css('display', 'block');
+                
+                if (split === 'horizontal') {
+                    $('#codeCol').css('width', 'calc(50% - 3px)');
+                } else {
+                    $('#codeCol').css('height', '50%');
+                }
+
+                resultShown = true;
+                $('#resultShown').prop('checked', resultShown);
+            } else {
+                $('.resultShownRow .col, .nav-tabs .nav-item:nth-child(2)').css('display', 'none');
+
+                if (split === 'horizontal') {
+                    $('#codeCol').css('width', 'calc(100% - 3px)');
+                } else {
+                    $('#codeCol').css('height', '100%');
+                }
+
+                resultShown = false;
+            }
+
             $('.code-output').removeClass().addClass(`code-output language-${language}`);
             $('code', '.code-output').removeClass().addClass(`language-${language}`).removeAttr('data-language');
         },
@@ -449,7 +516,7 @@ let Editor = (() => {
                     Prism.highlightAll();
                 }
 
-                $('#src, .code-output').css('padding-left', `${textSize / 16 + 1}rem`);
+                $('#src, .code-output').css('padding-left', `${textSize / 16 + 2}rem`);
             });
 
             $('.size-minus-btn').off().on('click', () => {
@@ -463,7 +530,7 @@ let Editor = (() => {
                     Prism.highlightAll();
                 }
 
-                $('#src, .code-output').css('padding-left', `${textSize / 16 + 1}rem`);
+                $('#src, .code-output').css('padding-left', `${textSize / 16 + 2}rem`);
             });
 
             position = () => {
@@ -559,12 +626,27 @@ let Editor = (() => {
             $('#indentSize').on('change', function() {
                 // Change and save the indent size
 
-                let indentSize = parseInt(this.value.slice(0, -7));
+                indentSize = parseInt(this.value.slice(0, -7));
                 $(':root').css('--indent-size', indentSize);
                 localStorage.padscapeIndentSize = indentSize;
             });
 
-            $('#resultShown').click(() => {
+            $('#lang').on('change', function() {
+                // Change and save the language
+
+                let old_lang = lang;
+                lang = this.value;
+
+                if (old_lang === lang) { return; }
+
+                editor.listenLanguage(lang);
+                $('#src').val(editor.getText(true));
+                editor.highlight($('#src').val());
+                editor.showResult();
+                localStorage.padscapeLanguage = lang;
+            });
+
+            $('body').delegate('#resultShown', 'click', () => {
                 resultShown = $('#resultShown').prop('checked');
                 localStorage.padscapeResultShown = resultShown;
 
@@ -738,8 +820,11 @@ let Editor = (() => {
                 }
 
                 if (!resultShown) {
-                    $("#codeCol, #resultCol").removeClass('col');
-                    $("#src, .code-output").css("padding-top", "4.5rem");
+                    if (split === 'horizontal') {
+                        $('#codeCol').css('width', 'calc(100% - 3px)');
+                    } else {
+                        $('#codeCol').css('height', '100%');
+                    }
                 }
 
                 $('#Editor').css('display', 'block');
@@ -747,6 +832,7 @@ let Editor = (() => {
 
                 $(':root').css('--indent-size', indentSize);
                 $('#indentSize').val(`${indentSize} spaces`);
+                $('#lang').val(lang);
                 $('#resultShown').prop('checked', resultShown);
                 $('#realtimeMode').prop('checked', realtime === 'on');
                 $('#autosaveMode').prop('checked', autosave === 'on');
@@ -773,11 +859,11 @@ let Editor = (() => {
     numberLines = () => {
         let lineHeight = parseInt(textSize) * 1.5;
 
-        for (let i = 1; i < $('code').html().split('\n').length; i++) {          
-            $('code').append(`<span class="line-number" data-start="${i}" style="top: calc(${lineHeight * (i - 1)}px + 3.2rem)"></span>`);
+        for (let i = 1; i < $('pre code').html().split('\n').length; i++) {          
+            $('pre code').append(`<span class="line-number" data-start="${i}" style="top: calc(${lineHeight * (i - 1)}px + 3.2rem)"></span>`);
         }
 
-        $('#src, .code-output').css('padding-left', `${textSize / 16 + 1}rem`);
+        $('#src, .code-output').css('padding-left', `${textSize / 16 + 2}rem`);
     };
 
     Prism.hooks.add('after-highlight', env => {

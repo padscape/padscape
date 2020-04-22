@@ -5,21 +5,19 @@
 ![Code Size](https://img.shields.io/github/languages/code-size/padscape/padscape)
 ![Codacy Badge](https://api.codacy.com/project/badge/Grade/d666be2f3f6b4bc5ab9283cc05fdbd4b)
 
-Padscape is a new HTML realtime web editor. It will be available in several platforms in the future, like Android and Desktop, but right now it is only available on the web. :cry:
+Padscape is a new online code editor, designed especially for web development. It will be available in several platforms in the future, like Android and Desktop, but right now it is only available on the web. :cry:
 
 ## Using
 Go to https://padscape.github.io/padscape/
 
 ## Features
 Padscape will feature:
-- Syntax highlighting with numerous themes
-- A nice, responsive UI
-- A social-media type of user profiles
 
-Current features:
-- Syntax highlighting (2 themes)
-- Saving and viewing others' Pads
-- A library handling system
+Padscape features:
+- Syntax highlighting for HTML, Python, Java and more
+- Saving and viewing other people's Pads
+- A library handling system to save you loads of time (HTML only)
+- A simple, responsive UI
 
 ## Built with
 - [Bootstrap 4](https://getbootstrap.com/) - Primary CSS framework
