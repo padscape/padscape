@@ -110,7 +110,7 @@ let Editor = (() => {
                                                     </div>
                                                 </div>
                                                 <div class="row vertical-align" style="padding: 0">
-                                                    <div class="col">
+                                                    <div class="col splits">
                                                         <button type="button" class="btn btn-primary" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns fa-rotate-270"></i></button>
                                                         <button type="button" class="btn btn-primary" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns"></i></button>
                                                         <label for="horizontal-split">Layout</label>
@@ -243,9 +243,9 @@ let Editor = (() => {
             editor.sizeButtons();
         },
 
-        getText() {
+        getText(force) {
             defaultText = (function() {
-                if (isDefined(localStorage.defaultText) && localStorage.defaultText != '' && lang === 'HTML') {
+                if (isDefined(localStorage.defaultText) && localStorage.defaultText != '' && !force) {
                     return localStorage.defaultText;
                 } else if (lang === 'HTML') {
                     return '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>Hello, World!</h1>\n\t</body>\n</html>';
@@ -467,7 +467,7 @@ let Editor = (() => {
         
         listenLanguage(language) {
             if (language === 'HTML') {
-                $('.resultShownRow .col, .nav-tabs .nav-item:nth-child(2)').css('display', 'block');
+                $('.resultShownRow .col, .splits, .nav-tabs .nav-item:nth-child(2)').css('display', 'block');
                 
                 if (split === 'horizontal') {
                     $('#codeCol').css('width', 'calc(50% - 3px)');
@@ -478,7 +478,7 @@ let Editor = (() => {
                 resultShown = true;
                 $('#resultShown').prop('checked', resultShown);
             } else {
-                $('.resultShownRow .col, .nav-tabs .nav-item:nth-child(2)').css('display', 'none');
+                $('.resultShownRow .col, .splits, .nav-tabs .nav-item:nth-child(2)').css('display', 'none');
 
                 if (split === 'horizontal') {
                     $('#codeCol').css('width', 'calc(100% - 3px)');
