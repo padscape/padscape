@@ -257,7 +257,9 @@ code[class*="language-"], pre[class*="language-"] {
     left: 42%;
     width: 100%;
     height: 100%;
-    position: fixed;
+    position: absolute;
+    animation: float 20s infinite ease;
+    -webkit-animation: float 20s infinite ease;
 }
 
 #loader {
@@ -271,18 +273,18 @@ code[class*="language-"], pre[class*="language-"] {
 
 #loader::before {
     content: "";
-    width: 136px;
+    width: 130px;
     height: 2px;
     background-color: #0073b1;
     position: absolute;
-    left: -34px;
+    left: 0px;
     animation: bluebar 1.5s infinite ease;
     -webkit-animation: bluebar 1.5s infinite ease;
 }
 
 @keyframes bluebar {
     50% {
-        left: 192px;
+        left: 130px;
     }
 }
 
@@ -301,6 +303,20 @@ code[class*="language-"], pre[class*="language-"] {
     100% {
         opacity: 0;
         transform: scale(0.1);
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(-30px);
+    }
+
+    50% {
+        transform: translateY(-100px);
+    }
+
+    100% {
+        transform: translateY(-30px);
     }
 }
 

@@ -1,154 +1,21 @@
 let defaultText, lang, theme, textSize, realtime, autosave, indentSize, resultShown, split, creator, username, libLink, libs, hasSaved;
 
+let languageDefaults = {
+    'HTML': '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>Hello, World!</h1>\n\t</body>\n</html>',
+    'C++': '#include <iostream>\n\nint main() {\n\tstd::cout << "Hello, World!";\n\treturn 0;\n}',
+    'Python': 'print("Hello, World!")',
+    'Rust': 'fn main() {\n\tprintln!("Hello, World!");\n}',
+    'C': '#include <stdio.h>\n\nint main() {\n\tprintf("Hello, World!");\n\treturn 0;\n}',
+    'Go': 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, World!")\n}',
+    'Java': 'class App {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello, World!");\n\t}\n}',
+    'Scala': 'object App {\n\tdef main(args: Array[String]) = {\n\t\tprintln("Hello, World!")\n\t}\n}'
+};
+
 let Editor = (() => {
     return {
         init() {
             // Append the HTML code
             editor = this;
-
-            let content = ` <div id="load">
-                                <img src="https://avatars2.githubusercontent.com/u/51507573?s=400&u=7b0c73685f03e22579236e0ef69ac1c84ef2c530&v=4" width="260px" height="260px"></img>
-                                <div id="loader"></div>
-                            </div>
-                            <div id="page">
-                                <nav class="navbar navbar-expand-sm fixed-top vertical-align">
-                                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-                                        <span class="navbar-toggler-icon"></span>
-                                    </button>
-                                    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-                                        <ul class="navbar-nav">
-                                            <li class="nav-item">
-                                                <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
-                                            </li>
-                                            <li class="nav-item">
-                                                <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S">Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i></button>
-                                            </li>
-                                            <li class="nav-item">
-                                                <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
-                                            </li>
-                                        </ul>
-                                        <ul class="navbar-nav ml-auto">
-                                            <li class="nav-item">
-                                                <p class="navbar-text my-auto" style="color: white" id="info"></p>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </nav>
-                                <div class="row">
-                                    <div id="codeCol">
-                                        <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" autofocus></textarea>
-                                        <pre class="code-output language-html line-number"><code></code></pre>
-                                        <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
-                                        <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
-                                    </div>
-                                    <div id="resultCol">
-                                        <iframe id="result"></iframe></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal fade" id="settingsModal">
-                                <div class="modal-dialog modal-dialog-centered modal-lg modal-settings">
-                                    <div class="modal-content text-dark">
-                                        <div class="modal-header bg-light">
-                                            <h4 class="modal-title">Settings</h4>
-                                            <button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <ul class="nav nav-tabs">
-                                                <li class="nav-item">
-                                                    <a class="nav-link active">Editor</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link">Libraries</a>
-                                                </li>
-                                            </ul>
-                                            <br>
-                                            <div class="container tab-pane" id="Editor">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode">
-                                                    <label class="custom-control-label" for="darkMode">Dark theme</label>
-                                                </div>
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
-                                                    <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
-                                                </div>
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input noGlow shadow-none" id="autosaveMode">
-                                                    <label class="custom-control-label" for="autosaveMode">Autosave Enabled</label>
-                                                </div>
-                                                <div class="row vertical-align" style="padding-top: 4px;">
-                                                    <div class="col-6">
-                                                        <select name="indent" class="custom-select" id="indentSize">
-                                                            <option val="2spc">2 spaces</option>
-                                                            <option val="4spc">4 spaces</option>
-                                                            <option val="8spc">8 spaces</option>
-                                                        </select>
-                                                    </div>
-                                                    <label for="indentSize">Indent Size</label>
-                                                </div>
-                                                <div class="row vertical-align" style="padding-top: 4px;">
-                                                    <div class="col-6">
-                                                        <select name="lang" class="custom-select" id="lang">
-                                                            <option val="html">HTML</option>
-                                                            <option val="python">Python</option>
-                                                            <option val="java">Java</option>
-                                                            <option val="c">C</option>
-                                                            <option val="cpp">C++</option>
-                                                            <option val="go">Go</option>
-                                                            <option val="rust">Rust</option>
-                                                            <option val="scala">Scala</option>
-                                                        </select>
-                                                    </div>
-                                                    <label for="lang">Programming Language</label>
-                                                </div>
-                                                <div class="row resultShownRow" style="padding-top: 4px;">
-                                                    <div class="col">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input" id="resultShown">
-                                                            <label class="custom-control-label" for="resultShown">Show result?</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row vertical-align" style="padding: 0">
-                                                    <div class="col splits">
-                                                        <button type="button" class="btn btn-primary" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns fa-rotate-270"></i></button>
-                                                        <button type="button" class="btn btn-primary" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns"></i></button>
-                                                        <label for="horizontal-split">Layout</label>
-                                                    </div>
-                                                </div>
-                                                <br><br>
-                                                <div class="text-center" id="export-delete">
-                                                    <button type="button" class="btn btn-primary noGlow" id="export" data-tooltip-text="1">Export&nbsp;&nbsp;&nbsp;<i class='fas fa-file-export'></i></button>
-                                                    <button type="button" class="btn btn-primary noGlow" id="import" data-tooltip-text="1">Import&nbsp;&nbsp;&nbsp;<i class='fas fa-file-import'></i></button>
-                                                    <input type="file" style="display: none">
-                                                </div>
-                                            </div>
-                                            <div class="container tab-pane" id="Libraries">
-                                                <div class="row" style="padding-top: 0;">
-                                                    <div class="col-8">
-                                                        <div class="dropdown">
-                                                            <input type="text" class="form-control lib-dropdown" placeholder="Search libraries by name or paste URL" id="libName">
-                                                            <div class="dropdown-menu scrollable-menu">
-                                                            </div>
-                                                        </div>
-                                                        <ul id="libList" class="list-group list-group-flush"></ul>
-                                                    </div>
-                                                    <div class="col-4" style="padding-left: 0;">
-                                                        <div id="addLib">
-                                                            <div class="addLib-content">Add</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <br>
-                                                <span class="font-weight-bold">Note: </span><span>JavaScript and CSS libraries will automatically be placed at the bottom of the <code>head</code>, <code>body</code> or <code>html</code> tag precedently. If none of these exist, it will be added to the end of the document.</span>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer bg-light">
-                                        </div>
-                                    </div>
-                                </div>`;
-
-            $("body").append(content);
 
             // Get personalized settings from localStorage
 
@@ -233,139 +100,24 @@ let Editor = (() => {
             $('#page').css({'visibility': 'visible', 'opacity': '1'});
 
             // Call all the member functions
-            editor.splitPanes();
             editor.getInput();
             editor.runCode();
             editor.renderOutput();
-            editor.saveText();
             editor.listenerForScroll();
-            editor.modal();
-            editor.sizeButtons();
         },
 
         getText(force) {
             defaultText = (function() {
                 if (isDefined(localStorage.defaultText) && localStorage.defaultText != '' && !force) {
                     return localStorage.defaultText;
-                } else if (lang === 'HTML') {
-                    return '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>App</title>\n\t</head>\n\t<body>\n\t\t<h1>Hello, World!</h1>\n\t</body>\n</html>';
-                } else if (lang === 'C++') {
-                    return '#include <iostream>\n\nint main() {\n\tstd::cout << "Hello, World!";\n\treturn 0;\n}';
-                } else if (lang === 'Python') {
-                    return 'print("Hello, World!")';
-                } else if (lang === 'Rust') {
-                    return 'fn main() {\n\tprintln!("Hello, World!");\n}';
-                } else if (lang === 'C') {
-                    return '#include <stdio.h>\n\nint main() {\n\tprintf("Hello, World!");\n\treturn 0;\n}';
-                } else if (lang === 'Go') {
-                    return 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, World!")\n}';
-                } else if (lang === 'Java') {
-                    return 'class App {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello, World!");\n\t}\n}';
-                } else if (lang === 'Scala') {
-                    return 'object App {\n\tdef main(args: Array[String]) = {\n\t\tprintln("Hello, World!")\n\t}\n}';
                 } else {
-                    return 'Hello, World!';
+                    return languageDefaults[lang];
                 }
             }());
 
             return defaultText;
         },
 
-        splitPanes() {
-            makePanes = () => {
-                $('.gutter').remove();
-
-                let pane = new Split(["#codeCol", "#resultCol"], {
-                    direction: split,
-                    sizes: [50, 50],
-                    minSize: [300, 300],
-                    gutterSize: 6,
-                    cursor: `${(split === 'horizontal') ? 'col' : 'row'}-resize`
-                });
-            }
-
-            positionPanes = () => {
-                // Adjust the width of the textarea
-
-                if (split === 'horizontal') {
-                    $('#codeCol, #resultCol').css('height', '100%');
-                    $('#src, .code-output').css({'width': `calc(${$('#codeCol').css('width')} - 15px)`, 'height': '100%'});
-                } else {
-                    $('#codeCol, #resultCol').css('width', '100%');
-                    $('#src, .code-output').css({'height': `calc(${$('#codeCol').css('height')} + 52px)`, 'width': '100%'});
-                }
-
-                editor.sizeButtons();
-                editor.sizeButtons.position();
-            }
-
-            updateSplit = direction => {
-                if (split === direction) { return; }
-
-                split = direction;
-                localStorage.padscapeLayout = split;
-
-                makePanes();
-                positionPanes();
-            }
-
-            window.onresize = () => {
-                positionPanes();
-            };
-
-            let observer = new MutationObserver(mutations => {
-                mutations.forEach(() => {
-                    // When the container is resized
-                    positionPanes();
-                });    
-            });
-            
-            observer.observe($('#codeCol')[0], {
-                attributes: true, attributeFilter: ['style']
-            });
-
-            makePanes();
-            positionPanes();
-
-            editor.splitPanes.updateSplit = updateSplit;
-        },
-
-        saveText() {
-            $('#save').click(() => {
-                hasSaved = true;
-
-                if (creator === username) {
-                    saveToDatabase();
-                } else {
-                    forkCode();
-                }
-            });
-
-            $('#src').on('keyup keydown', () => {
-                if (autosave === 'on') {
-                    hasSaved = true;
-
-                    if (!location.hash) {
-                        localStorage.defaultText = $('#src').val();
-                    } else if (creator === username) {
-                        saveToDatabase();
-                    }
-                }
-            });
-
-            $(document).on('keydown', e => {
-                if (e.ctrlKey && e.keyCode === 83) {
-                    e.preventDefault();
-
-                    if (!location.hash) {
-                        localStorage.defaultText = $('#src').val();
-                    } else if (creator === username) {
-                        saveToDatabase();
-                    }
-                }
-            });
-        },
-        
         getInput() {
             $('#src').on('keydown', function(e) {
                 let keyCode = e.keyCode || e.which;
@@ -441,7 +193,12 @@ let Editor = (() => {
             let src = '';
 
             // Fetch the library imports
-            for (let lib in libs) { if (libs.hasOwnProperty(lib)) { src += libs[lib]; } }
+            for (let lib in libs) {
+                if (libs.hasOwnProperty(lib)) {
+                    src += libs[lib];
+                }
+            }
+
             src += $('#src').val();
 
             // Show the result in the iframe
@@ -501,347 +258,6 @@ let Editor = (() => {
                 // Scroll the textarea to the position of the highlighted text
                 $(this).scrollTop($('.code-output').scrollTop());
                 $(this).scrollLeft($('.code-output').scrollLeft());
-            });
-        },
-
-        sizeButtons() {
-            $('.size-plus-btn').off().on('click', () => {
-                // Increase the font size
-                if (typeof textSize !== 'number') { textSize = parseInt(textSize); }
-
-                if (textSize < 55) {
-                    textSize += 2;
-                    $(':root').css('--text-size', `${textSize}px`);
-                    localStorage.padscapeTextSize = textSize;
-                    Prism.highlightAll();
-                }
-
-                $('#src, .code-output').css('padding-left', `${textSize / 16 + 2}rem`);
-            });
-
-            $('.size-minus-btn').off().on('click', () => {
-                // Decrease the font size
-                if (typeof textSize !== 'number') { textSize = parseInt(textSize); }
-
-                if (textSize > 2) {
-                    textSize -= 2;
-                    $(':root').css('--text-size', `${textSize}px`);
-                    localStorage.padscapeTextSize = textSize;
-                    Prism.highlightAll();
-                }
-
-                $('#src, .code-output').css('padding-left', `${textSize / 16 + 2}rem`);
-            });
-
-            position = () => {
-                // Position the element correctly
-                let xPosition = $('#src').css('width');
-                let yPosition = parseInt($('#src').css('height').slice(0, -2));
-                $('.size-plus-btn').css({'left': `calc(${xPosition} - 70px)`, 'top': `${Math.min(yPosition, window.innerHeight) - 50}px`});
-                $('.size-minus-btn').css({'left': `calc(${xPosition} - 119px)`, 'top': `${Math.min(yPosition, window.innerHeight) - 50}px`});
-            }
-
-            $(document).ready(() => {
-                position();
-                $(':root').css('--text-size', `${textSize}px`);
-            });
-
-            // Make position() accessible from the outer scope
-            editor.sizeButtons.position = position;
-        },
-
-        modal() {
-            let selectionS, selectionE;
-
-            $(document).on("keyup keydown", e => {
-                if (e.ctrlKey && e.keyCode === 73) {
-                    // When Ctrl+I pressed
-                    e.preventDefault();
-                    $("#settingsModal").modal('toggle');
-                }
-            });
-
-            $("#settingsModal").on('show.bs.modal', () => {
-                selectionS = $('#src').attr('selectionStart');
-                selectionE = $('#src').attr('selectionEnd');
-            });
-
-            $("#settingsModal").on('hidden.bs.modal', () => {
-                // When modal closes, continue where you left off
-                $('#src').attr('selectionStart', selectionS);
-                $('#src').attr('selectionEnd', selectionE);
-                $('#src').focus();
-            });
-
-            $('#settings').click(() => {
-                $("#settingsModal").modal('toggle');
-            });
-
-            $('body').delegate('#delete', 'click', () => {
-                deleteCode();
-            });
-
-            $('#horizontal-split').click(() => {
-                editor.splitPanes();
-                editor.splitPanes.updateSplit('horizontal');
-            });
-
-            $('#vertical-split').click(() => {
-                editor.splitPanes();
-                editor.splitPanes.updateSplit('vertical');
-            });
-
-            $('#darkMode').click(function() {
-                // Change and save the color theme
-
-                if ($(this).is(":checked")) {
-                    theme = "dark";
-                    $('#dark').attr('rel', 'stylesheet');
-                    $('#white').attr('rel', 'stylesheet alternate');
-                    $('.navbar').addClass('bg-dark navbar-dark');
-                } else {
-                    theme = "white";
-                    $('#white').attr('rel', 'stylesheet');
-                    $('#dark').attr('rel', 'stylesheet alternate');
-                    $('.navbar').addClass('bg-light navbar-light');
-                }
-
-                localStorage.padscapeTheme = theme;
-            });
-
-            $('#realtimeMode').click(function() {
-                // Change and save the realtime mode
-
-                realtime = ($(this).is(":checked")) ? "on" : "off";
-                localStorage.padscapeRealtime = realtime;
-            });
-
-            $('#autosaveMode').click(function() {
-                // Change and save the autosave
-
-                autosave = ($(this).is(":checked")) ? "on" : "off";
-                localStorage.padscapeAutosave = autosave;
-            });
-
-            $('#indentSize').on('change', function() {
-                // Change and save the indent size
-
-                indentSize = parseInt(this.value.slice(0, -7));
-                $(':root').css('--indent-size', indentSize);
-                localStorage.padscapeIndentSize = indentSize;
-            });
-
-            $('#lang').on('change', function() {
-                // Change and save the language
-
-                let old_lang = lang;
-                lang = this.value;
-
-                if (old_lang === lang) { return; }
-
-                editor.listenLanguage(lang);
-                $('#src').val(editor.getText(true));
-                editor.highlight($('#src').val());
-                editor.showResult();
-                localStorage.padscapeLanguage = lang;
-            });
-
-            $('body').delegate('#resultShown', 'click', () => {
-                resultShown = $('#resultShown').prop('checked');
-                localStorage.padscapeResultShown = resultShown;
-
-                if (split === 'horizontal') {
-                    $('#codeCol').css('width', `calc(${(resultShown) ? 50 : 100}% - 3px)`);
-                } else {
-                    $('#codeCol').css('height', `${(resultShown) ? 50 : 100}%`);
-                }
-
-                // Position the size buttons
-                editor.sizeButtons();
-                editor.sizeButtons.position();
-            });
-
-            $('.nav-tabs a').click(function() {
-                // Make the tabs in the modal functional
-
-                $('.tab-pane').each((index, element) => { 
-                    $(element).css('display', 'none');
-                });
-                
-                $(this).tab('show');
-                $(`#${this.innerHTML}`).css('display', 'block');
-            });
-
-            $('#libName').on('input keyup', function() {
-                let value = this.value;
-
-                $(this).dropdown('toggle');
-
-                if (value.includes('https:') || value.includes('http:') || value === '' || value === ' ') {
-                    $('.dropdown-menu').removeClass('show');
-                    $('.libsItem').remove();
-                    return;
-                }
-
-                const getLibs = async () => {
-                    // Search the CDN.js API for library results
-                    let response = await fetch(`https://api.cdnjs.com/libraries?search=${value}`);
-                    return await response.json();
-                };
-
-                (async () => {
-                    $('.dropdown-menu')[0].innerHTML = '';
-
-                    let data = await getLibs();
-                    let i = 0;
-
-                    data.results.some((res) => {
-                        if (i > 30 || i >= data.results.length) { return true; }
-                        $('.dropdown-menu').append(`<a class="dropdown-item libsItem" onclick="$('#libName').val($(this)[0].innerHTML); $('.dropdown-menu').removeClass('show'); libLink = '${res.latest}'">${res.name}</a>`);
-                        i++;
-                    });
-                })();
-            });
-
-            $('#addLib').on('click', () => {
-                let libName = $('#libName').val();
-
-                if (libName !== '') {
-                    // Add the library
-
-                    let type = libLink.split('.').pop();
-                    let toAdd = `<${(type === 'js') ? 'script src="' : 'link rel="stylesheet" href="'}${(libName.includes('https://')) ? libName : libLink}">${(type === 'js') ? '</script>' : ''}`;
-                    $('#libList').append(`<li class="list-group-item d-flex align-items-center">${libName} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`);
-                    libs[libName] = toAdd;
-
-                    if (location.hash) {
-                        if (creator === username) {
-                            saveToDatabase();
-                        } else {
-                            forkCode();
-                        }
-                    } else {
-                        localStorage.padscapeLib = JSON.stringify(libs);
-                    }
-                }
-            });
-
-            $('body').delegate('#deleteLib', 'click', function() {
-                // Remove the library
-
-                let libName = $(this).parent().text().slice(0, -7);
-                delete libs[libName];
-
-                if (location.hash) {
-                    if (creator === username) {
-                        saveToDatabase();
-                    } else {
-                        forkCode();
-                    }
-                } else {
-                    localStorage.padscapeLib = JSON.stringify(libs);
-                }
-                
-                $(this).parent().addClass('deleteLib');
-                setTimeout(() => { $(this).parent().remove(); }, 200);
-            });
-
-            $('#import').on('click', () => {
-                $(':file').trigger('click');
-            });
-
-            $(':file').on('change', () => {
-                let fileReader = new FileReader();
-
-                fileReader.onload = () => {
-                    defaultText = fileReader.result;
-                    $('#src').val(defaultText);
-                    editor.highlight(defaultText);
-                    editor.showResult();
-                };
-
-                fileReader.readAsText($(':file').prop('files')[0]);
-            });
-
-            $('#export').tooltip({
-                trigger: 'click',
-                placement: 'bottom'
-            });
-
-            $('#export').on('click', function() {
-                // Copy the complete code to the clipbard
-
-                let index;
-                let src = $('#src').val().split('\n');
-
-                index = src.length;
-                    
-                src.some((line, indx) => {
-                    if (line.includes('</head>')) {
-                        index = indx;
-                        return true;
-                    } else if (line.includes('</body>') || line.includes('</html>')) {
-                        index = indx;
-                    }
-                });
-
-                let targetLine = src[index];
-                let indent = targetLine.match(/^\s*/)[0];
-                if (index === src.length) { lines.push(''); }
-
-                for (let lib in libs) {
-                    if ({}.hasOwnProperty.call(libs, lib)) {
-                        src.splice(index, 0, `${indent}${(indent) ? '\t' : ''}${libs[lib]}`);
-                    }
-                }
-
-                let copy = $('<textarea>').val(src.join('\n')).appendTo('body').select();
-                document.execCommand('copy');
-                copy.remove();
-
-                $(this).tooltip('hide').attr('data-original-title', 'Copied').tooltip('show');
-                setTimeout(() => { $(this).tooltip('hide'); }, 1000);
-            });
-
-            $(document).ready(() => {
-                // Set preferences
-
-                if (localStorage.padscapeTheme === "dark") {
-                    theme = "dark";
-                    $('#dark')[0].rel = 'stylesheet';
-                    $('#white')[0].rel = 'stylesheet alternate';
-                    $('.navbar').addClass('bg-dark navbar-dark');
-                    $('#darkMode').prop('checked', true);
-                } else {
-                    theme = "white";
-                    $('#white')[0].rel = 'stylesheet';
-                    $('#dark')[0].rel = 'stylesheet alternate';
-                    $('.navbar').addClass('bg-light navbar-light');
-                }
-
-                if (!resultShown) {
-                    if (split === 'horizontal') {
-                        $('#codeCol').css('width', 'calc(100% - 3px)');
-                    } else {
-                        $('#codeCol').css('height', '100%');
-                    }
-                }
-
-                $('#Editor').css('display', 'block');
-                $('#Libraries').css('display', 'none');
-
-                $(':root').css('--indent-size', indentSize);
-                $('#indentSize').val(`${indentSize} spaces`);
-                $('#lang').val(lang);
-                $('#resultShown').prop('checked', resultShown);
-                $('#realtimeMode').prop('checked', realtime === 'on');
-                $('#autosaveMode').prop('checked', autosave === 'on');
-
-                for (let lib in libs) {
-                    if ({}.hasOwnProperty.call(libs, lib)) {
-                        $('#libList').append(`<li class="list-group-item d-flex align-items-center">${lib} <div id="deleteLib" class="ml-auto"><div class="deleteLib-content">Remove</div></div></li>`);
-                    }
-                }
             });
         }
     };

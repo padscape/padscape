@@ -51,3 +51,37 @@ deleteCode = () => {
         }
     });
 };
+
+$('#save').click(() => {
+    hasSaved = true;
+
+    if (creator === username) {
+        saveToDatabase();
+    } else {
+        forkCode();
+    }
+});
+
+$('#src').on('keyup keydown', () => {
+    if (autosave === 'on') {
+        hasSaved = true;
+
+        if (!location.hash) {
+            localStorage.defaultText = $('#src').val();
+        } else if (creator === username) {
+            saveToDatabase();
+        }
+    }
+});
+
+$(document).on('keydown', e => {
+    if (e.ctrlKey && e.keyCode === 83) {
+        e.preventDefault();
+
+        if (!location.hash) {
+            localStorage.defaultText = $('#src').val();
+        } else if (creator === username) {
+            saveToDatabase();
+        }
+    }
+});

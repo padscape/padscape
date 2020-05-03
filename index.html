@@ -1,21 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Padscape</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./src/style.css">
-    <link rel="stylesheet alternate" href="./src/white.css" id="white">
-    <link rel="stylesheet alternate" href="./src/dark.css" id="dark">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.3.5/split.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/plugins/autoloader/prism-autoloader.min.js"></script>
-</head>
-<body>
-    <script src="./src/padController.js"></script>
-    <script src="./src/app.js"></script>
-</body>
+    <head>
+        <title>Padscape</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./src/style.css">
+        <link rel="stylesheet alternate" href="./src/white.css" id="white">
+        <link rel="stylesheet alternate" href="./src/dark.css" id="dark">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.3.5/split.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/components/prism-core.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    </head>
+    <body>
+    <div id="load">
+        <img src="https://avatars2.githubusercontent.com/u/51507573?s=400&u=7b0c73685f03e22579236e0ef69ac1c84ef2c530&v=4" width="260px" height="260px"></img>
+        <div id="loader"></div>
+    </div>
+    <div id="page">
+        <nav class="navbar navbar-expand-sm fixed-top vertical-align">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-primary noGlow" id="run" data-toggle="tooltip" data-placement="bottom" title="Alt+R">Run&nbsp;&nbsp;&nbsp;<i class='fas fa-play'></i></button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-primary noGlow" id="save" data-toggle="tooltip" data-placement="bottom" title="Ctrl+S">Save&nbsp;&nbsp;&nbsp;<i class='fas fa-cloud-upload-alt'></i></button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-primary noGlow" id="settings" data-toggle="tooltip" data-placement="bottom" title="Ctrl+I">Settings&nbsp;&nbsp;&nbsp;<i class='fas fa-cog'></i></button>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <p class="navbar-text my-auto" style="color: white" id="info"></p>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="row">
+            <div id="codeCol">
+                <textarea id="src" data-gramm_editor="false" spellcheck="false" class="noGlow" autofocus></textarea>
+                <pre class="code-output language-html line-number"><code></code></pre>
+                <button type="button" class="btn btn-circle btn-lg btn-light size-plus-btn shadow-none text-dark">+</button>
+                <button type="button" class="btn btn-circle btn-lg btn-light size-minus-btn shadow-none text-dark">-</button>
+            </div>
+            <div id="resultCol">
+                <iframe id="result"></iframe></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="settingsModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-settings">
+            <div class="modal-content text-dark">
+                <div class="modal-header bg-light">
+                    <h4 class="modal-title">Settings</h4>
+                    <button type="button" class="close btn-danger shadow-none noGlow" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active">Editor</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link">Libraries</a>
+                        </li>
+                    </ul>
+                    <br>
+                    <div class="container tab-pane" id="Editor">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input noGlow shadow-none" id="darkMode">
+                            <label class="custom-control-label" for="darkMode">Dark theme</label>
+                        </div>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input noGlow shadow-none" id="realtimeMode">
+                            <label class="custom-control-label" for="realtimeMode">Automatic Running Enabled</label>
+                        </div>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input noGlow shadow-none" id="autosaveMode">
+                            <label class="custom-control-label" for="autosaveMode">Autosave Enabled</label>
+                        </div>
+                        <div class="row vertical-align" style="padding-top: 4px;">
+                            <div class="col-6">
+                                <select name="indent" class="custom-select" id="indentSize">
+                                    <option val="2spc">2 spaces</option>
+                                    <option val="4spc">4 spaces</option>
+                                    <option val="8spc">8 spaces</option>
+                                </select>
+                            </div>
+                            <label for="indentSize">Indent Size</label>
+                        </div>
+                        <div class="row vertical-align" style="padding-top: 4px;">
+                            <div class="col-6">
+                                <select name="lang" class="custom-select" id="lang">
+                                    <option val="html">HTML</option>
+                                    <option val="python">Python</option>
+                                    <option val="java">Java</option>
+                                    <option val="c">C</option>
+                                    <option val="cpp">C++</option>
+                                    <option val="go">Go</option>
+                                    <option val="rust">Rust</option>
+                                    <option val="scala">Scala</option>
+                                </select>
+                            </div>
+                            <label for="lang">Programming Language</label>
+                        </div>
+                        <div class="row resultShownRow" style="padding-top: 4px;">
+                            <div class="col">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="resultShown">
+                                    <label class="custom-control-label" for="resultShown">Show result?</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row vertical-align" style="padding: 0">
+                            <div class="col splits">
+                                <button type="button" class="btn btn-primary" id="vertical-split" data-toggle="tooltip" data-placement="bottom" title="Vertical Split"><i class="fa fa-columns fa-rotate-270"></i></button>
+                                <button type="button" class="btn btn-primary" id="horizontal-split" data-toggle="tooltip" data-placement="bottom" title="Horizontal Split"><i class="fa fa-columns"></i></button>
+                                <label for="horizontal-split">Layout</label>
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="text-center" id="export-delete">
+                            <button type="button" class="btn btn-primary noGlow" id="export" data-tooltip-text="1">Export&nbsp;&nbsp;&nbsp;<i class='fas fa-file-export'></i></button>
+                            <button type="button" class="btn btn-primary noGlow" id="import" data-tooltip-text="1">Import&nbsp;&nbsp;&nbsp;<i class='fas fa-file-import'></i></button>
+                            <input type="file" style="display: none">
+                        </div>
+                    </div>
+                    <div class="container tab-pane" id="Libraries">
+                        <div class="row" style="padding-top: 0;">
+                            <div class="col-8">
+                                <div class="dropdown">
+                                    <input type="text" class="form-control lib-dropdown" placeholder="Search libraries by name or paste URL" id="libName">
+                                    <div class="dropdown-menu scrollable-menu">
+                                    </div>
+                                </div>
+                                <ul id="libList" class="list-group list-group-flush"></ul>
+                            </div>
+                            <div class="col-4" style="padding-left: 0;">
+                                <div id="addLib">
+                                    <div class="addLib-content">Add</div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <span class="font-weight-bold">Note: </span><span>JavaScript and CSS libraries will automatically be placed at the bottom of the <code>head</code>, <code>body</code> or <code>html</code> tag precedently. If none of these exist, it will be added to the end of the document.</span>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                </div>
+            </div>
+        </div>
+        <script src="./src/padController.js"></script>
+        <script src="./src/app.js"></script>
+        <script src="./src/settings.js"></script>
+        <script src="./src/panes.js"></script>
+    </body>
 </html>
