@@ -193,7 +193,7 @@ code[class*="language-"], pre[class*="language-"] {
     height: 55px;
 }
   
-.addLib-content:before, .deleteLib-content:before {
+.addLib-content::before, .deleteLib-content::before {
     position: absolute;
     right: 225px;
     width: 40px;
@@ -211,11 +211,11 @@ code[class*="language-"], pre[class*="language-"] {
     border-radius: 8px;
 }
 
-.addLib-content:before {
+.addLib-content::before {
     content: '+';
 }
 
-.deleteLib-content:before {
+.deleteLib-content::before {
     content: '-';
 }
 
@@ -239,7 +239,6 @@ code[class*="language-"], pre[class*="language-"] {
     left: 35px;
     background-color: #006de2;
 }
-
 
 #deleteLib:hover .deleteLib-content {
     left: 20px;
@@ -378,7 +377,7 @@ code[class*="language-"], pre[class*="language-"] {
     line-height: inherit;
 }
 
-.line-number:before, .line-number[data-end]:after {
+.line-number::before, .line-number[data-end]::after {
     content: attr(data-start);
     position: absolute;
     top: 0.3rem;
@@ -392,7 +391,7 @@ code[class*="language-"], pre[class*="language-"] {
     border: 0;
 }
     
-.line-number[data-end]:after {
+.line-number[data-end]::after {
     content: attr(data-end);
     bottom: 0.4rem;
 }
@@ -418,7 +417,7 @@ pre[class*="language-"] {
 }
 
 :not(pre) > code[class*="language-"] {
-    border-radius: .3em;
+    border-radius: 0.3em;
     white-space: normal;
 }
 

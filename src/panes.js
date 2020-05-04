@@ -8,7 +8,7 @@ makePanes = () => {
         gutterSize: 6,
         cursor: `${(split === 'horizontal') ? 'col' : 'row'}-resize`
     });
-}
+};
 
 positionPanes = () => {
     // Adjust the width of the textarea
@@ -30,7 +30,7 @@ positionPanes = () => {
     }
 
     positionButtons();
-}
+};
 
 updateSplit = direction => {
     if (split === direction) {
@@ -67,7 +67,7 @@ $('.size-plus-btn').off().on('click', () => {
 $('.size-minus-btn').off().on('click', () => {
     // Decrease the font size
     if (typeof textSize !== 'number') {
-        textSize = parseInt(textSize);
+        textSize = parseInt(textSize, 10);
     }
 
     if (textSize > 2) {
@@ -94,7 +94,7 @@ positionButtons = () => {
         'left': `calc(${xPosition} - 119px)`,
         'top': `${Math.min(yPosition, window.innerHeight) - 50}px`
     });
-}
+};
 
 $(document).ready(() => {
     let observer = new MutationObserver(mutations => {

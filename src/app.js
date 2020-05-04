@@ -94,7 +94,7 @@ init = () => {
 
 getText = force => {
     defaultText = (function() {
-        if (isDefined(localStorage.defaultText) && localStorage.defaultText != '' && !force) {
+        if (isDefined(localStorage.defaultText) && localStorage.defaultText !== '' && !force) {
             return localStorage.defaultText;
         } else {
             return languageDefaults[lang];
@@ -102,7 +102,7 @@ getText = force => {
     }());
 
     return defaultText;
-}
+};
 
 getInput = () => {
     $('#src').on('keydown', function(e) {
@@ -318,7 +318,6 @@ runAll = () => {
         }
 
         $$('.line-number', pre).forEach(line => {
-            console.log(line);
             line.parentNode.removeChild(line);
         });
         
