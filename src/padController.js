@@ -9,7 +9,7 @@ getPadContents = id => {
 };
 
 saveToDatabase = () => {
-    let requestType = ((editor.emptyResponse && !hasSaved) || !location.hash) ? "post" : "put";
+    let requestType = ((emptyResponse && !hasSaved) || !location.hash) ? "post" : "put";
     let text = $("#src").val();
 
     $.ajax({

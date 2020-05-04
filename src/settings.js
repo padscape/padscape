@@ -86,11 +86,12 @@ $('#lang').on('change', function() {
         return;
     }
 
-    editor.listenLanguage(lang);
-    $('#src').val(editor.getText(true));
-    editor.highlight($('#src').val());
-    editor.showResult();
+    listenLanguage(lang);
+    $('#src').val(getText(true));
+    highlight($('#src').val());
+    showResult();
     localStorage.padscapeLanguage = lang;
+    localStorage.defaultText = $('#src').val();
 });
 
 $('body').delegate('#resultShown', 'click', () => {
@@ -104,8 +105,8 @@ $('body').delegate('#resultShown', 'click', () => {
     }
 
     // Position the size buttons
-    editor.sizeButtons();
-    editor.sizeButtons.position();
+    sizeButtons();
+    sizeButtons.position();
 });
 
 $('.nav-tabs a').click(function() {
@@ -207,8 +208,8 @@ $(':file').on('change', () => {
     fileReader.onload = () => {
         defaultText = fileReader.result;
         $('#src').val(defaultText);
-        editor.highlight(defaultText);
-        editor.showResult();
+        highlight(defaultText);
+        showResult();
     };
 
     fileReader.readAsText($(':file').prop('files')[0]);
